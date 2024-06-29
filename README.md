@@ -2,6 +2,7 @@
 A serial terminal program for the atari 8-bits to suit my needs for amateur radio.
 
 There are many terminal programs for the atari that are great, but here is what I want to implement here (we'll see what I get to):
+- [ ] UTC Clock in the corner of the screen
 - [ ] Customizable ATASCII -> ASCII mapping
 - [ ] Customizable RS232 settings (All 850 interface module settings, but in a menu!)
 - [ ] Saving a log to a file, cassette, or printer
