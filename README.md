@@ -1,7 +1,10 @@
 # atari8-ham-terminal
-A serial terminal program for the atari 8-bits to suit my needs for amateur radio.
+
+A serial terminal program for the atari 8-bits (I am using an Atari 400) to suit my needs for amateur radio.  
+This is written in C to be compiled with the awesome cc65 compiler.
 
 There are many terminal programs for the atari that are great, but here is what I want to implement here (we'll see what I get to):
+
 - [ ] UTC Clock in the corner of the screen
 - [ ] Customizable ATASCII -> ASCII mapping
 - [ ] Customizable RS232 settings (All 850 interface module settings, but in a menu!)
@@ -9,8 +12,7 @@ There are many terminal programs for the atari that are great, but here is what 
 - [ ] Other settings, like disabling keyboard beep or having it beep on tx
 - [ ] Customizable multi-page scrollable buffer without saving log
 
-
-## And, maybe in the future, ...
+## APRS Feature Ideas
 
 APRS Mode:
 
