@@ -22,6 +22,8 @@ void dli_routine(void) {
 // Specify the address to which the display list should be copied
 void install_dl(unsigned char *dl_addr) {
     memcpy(dl_addr, &display_list, sizeof(display_list));
+
+    ANTIC.nmien = (NMIEN_VBI);  // Don't let a vbi run while the vector is half copied
     OS.sdlst = 	dl_addr;
     OS.vdslst = &dli_routine;
     ANTIC.nmien = (NMIEN_DLI | NMIEN_VBI);
