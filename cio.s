@@ -3,12 +3,14 @@
 ;
 
 .include "atari.inc"
-.export _CIO_TEST, _main
+.export CIO_OPEN, CIO_CLOSE, CIO_WRITE, CIO_READ, CIO_ARBITRARY
+.exportzp BUFPTR
 
 
 ; Zero-page equates
 BUFPTRL = $CB
 BUFPTRH = $CC
+BUFPTR = $CB
 
 
 ; Opens IOCB#X ($10, $20, etc) with aux1 in A
@@ -95,35 +97,31 @@ CIO_WRITE:
 
     rts
 
-EDEV: .byte "E:",$9B
-MSG:  .byte "Hello World!",$9B
+; Performs an arbitrary cio Call
+; A is Command
+; X, Y are aux 1 and 2
+CIO_ARBITRARY:
+    ; Command
+    sta ICCOM, X
+    ; Aux bytes
+    txa
+    sta ICAX1, X
+    tya
+    sta ICAX2, X
 
-_CIO_TEST:
-    ; Open E:
-    lda #<EDEV
-    sta BUFPTRL
-    lda #>EDEV
-    sta BUFPTRH
+    ; Buffer
+    lda BUFPTRL
+    sta ICBAL, X
+    lda BUFPTRH
+    sta ICBAH, X
 
-    lda #OPNOT
-    ldx #$20
-    jsr CIO_OPEN
+    lda #$FF
+    sta ICBLL, X
+    sta ICBLH, X
 
-    ; Write to E:
-    lda #<MSG
-    sta BUFPTRL
-    lda #>MSG
-    sta BUFPTRH
+    ; CIO Call
+    jsr CIOV
 
-    ldx #$20
-    jsr CIO_WRITE
+    ; TODO: Error handling
 
-    ; Close E:
-    ldx #$20
-    jsr CIO_CLOSE
-
-    rts
-
-_main:
-    jsr _CIO_TEST
     rts
