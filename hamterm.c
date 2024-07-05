@@ -2,10 +2,10 @@
  */
 
 #include <atari.h>
-#include <conio.h>
 
 #include "dlist.h"
 #include "interrupts.h"
+#include "cio.h"
 
 
 #define DISPLAYLISTMEM       0x5000
@@ -13,6 +13,7 @@
 // Buffer variables
 int i;
 unsigned char x,y;
+unsigned char buf[64];
 
 
 // Uptime & UTC (once time setting is implemented) time
@@ -34,13 +35,13 @@ void on_sec(void) {
     min = uptime_sec / 60;
     hr = uptime_sec / 3600;
 
-    x = wherex();
-    y = wherey();
-    gotoxy(0,0);
+//    x = wherex();
+//    y = wherey();
+//    gotoxy(0,0);
 
-    cprintf("Time %02d:%02d:%02d", hr, min, sec);
-
-    gotoxy(x,y);
+//    cprintf("Time %02d:%02d:%02d", hr, min, sec);
+//
+//    gotoxy(x,y);
 }
 
 void vbi_routine(void) {
@@ -71,12 +72,34 @@ void setup(void) {
 }
 
 void main() {
-    setup();
+//    setup();
 
-    clrscr();
-    OS.crsinh = 0x00;
+    __asm__("jsr _CIO_TEST");
+
+//    OS.crsinh = 0x00;
+/*
+    strcpy(buf, "E:\n");
+
+
+    // OPEN E: FOR WRITING
+    OS.iocb[2].command = IOCB_OPEN;
+    OS.iocb[2].buflen = 12;
+    OS.iocb[2].buffer = &buf;
+    OS.iocb[2].aux1 = 0x08;  // Open for writing
+    OS.iocb[2].aux2 = 0x00;
+    asm("ldx #$20");
+    asm("jsr $E456");  // CIOV
+
+    // PUTCHAR
+    OS.iocb[2].command = IOCB_PUTCHR;
+    OS.iocb[2].buffer = &buf;
+    asm("ldx #$20");
+    asm("jsr $E456");  // CIOV
+*/
+
+
 
     for(;;){
-        cputc(cgetc());
+        //cputc(cgetc());
     }
 }

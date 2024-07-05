@@ -11,6 +11,7 @@ There are many terminal programs for the atari that are great, but here is what 
 - [ ] Saving a log to a file, cassette, or printer
 - [ ] Other settings, like disabling keyboard beep or having it beep on tx
 - [ ] Customizable multi-page scrollable buffer without saving log
+- [ ] Customizable buffer-flushing (flush after each character, after each line)
 
 ## APRS Feature Ideas
 
