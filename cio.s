@@ -1,9 +1,9 @@
 ;
-; Some basic CIO routines
+; Some basic CIO helper routines
 ;
 
 .include "atari.inc"
-.export CIO_OPEN, CIO_CLOSE, CIO_WRITE, CIO_READ, CIO_ARBITRARY
+.export CIO_OPEN, CIO_CLOSE, CIO_WRITE, CIO_GET, CIO_PUT, CIO_ARBITRARY
 .exportzp BUFPTR
 
 
@@ -53,14 +53,14 @@ CIO_CLOSE:
 
 
 ; Reads buf from channel in x for a bytes
-CIO_READ:
+CIO_GET:
     ; Buflen
     sta ICBLL, X
     lda #0
     sta ICBLH, X
 
     ; Command
-    lda #GETREC
+    lda #GETCHR
     sta ICCOM, X
     ; Buffer
     lda BUFPTRL
@@ -89,6 +89,29 @@ CIO_WRITE:
     lda #$FF
     sta ICBLL, X
     sta ICBLH, X
+
+    ; CIO Call
+    jsr CIOV
+
+    ; TODO: Error handling
+
+    rts
+
+; Writes A bytes of buf to channel in X
+CIO_PUT:
+    ; Buf len
+    sta ICBLL, X
+    lda #00
+    sta ICBLH, X
+
+    ; Command
+    lda #PUTCHR
+    sta ICCOM, X
+    ; Buffer
+    lda BUFPTRL
+    sta ICBAL, X
+    lda BUFPTRH
+    sta ICBAH, X
 
     ; CIO Call
     jsr CIOV
