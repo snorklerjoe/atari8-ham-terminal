@@ -30,7 +30,7 @@ To run `compile.sh`, you need:
 - bash
 - atari-tools
 - wget
-- cc65
+- atasm
 
 The `compile.sh` script should be run from the root of the repo,
 and will download a dos image from online (not mine), assemble hamterm, and add it to the image.  
