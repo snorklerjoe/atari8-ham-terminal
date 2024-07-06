@@ -1,0 +1,50 @@
+; Custom display list
+
+; Display list interrupt
+dli:
+    rti
+    pha
+    lda #00
+    sta WSYNC
+    sta COLBK
+    pla
+    rti
+
+; Install dl
+dl_install:
+    ldx NMIEN
+    lda #00
+    sta NMIEN ; Disable vbi and nmi etc etc
+
+    ; Load display list
+    staddr dlist,SDLSTL
+
+    ; Install dli
+    ;staddr dli,VDSLST
+
+    txa
+    ora #$C0  ; enable vbi and nmi
+    sta NMIEN
+    rts
+
+
+;.ORG $5000
+; Display list
+; TODO: Dedicated ram loc to ensure it does not cross a page
+dlist:  .byte $70          ; 8 blank lines
+        .byte $05+$80      ; 1-line gr. 0.5 status bar; DLI
+        .byte $70          ; 8 blank lines
+        .byte $02+$80+$20  ; 1-line gr. 0; DLI; V-scroll
+        .byte $02+$20      ; 1-line gr. 0; V-scroll
+        .byte $02+$20      ; 1-line gr. 0; V-scroll
+        .byte $02+$20      ; 1-line gr. 0; V-scroll
+        .byte $02+$20      ; 1-line gr. 0; V-scroll
+        .byte $02+$20      ; 1-line gr. 0; V-scroll
+        .byte $02+$20      ; 1-line gr. 0; V-scroll
+        .byte $02+$20      ; 1-line gr. 0; V-scroll
+        .byte $02+$20      ; 1-line gr. 0; V-scroll
+        .byte $02+$20      ; 1-line gr. 0; V-scroll
+        .byte $02+$20      ; 1-line gr. 0; V-scroll
+        .byte $02+$20      ; 1-line gr. 0; V-scroll
+        .byte $02+$20      ; 1-line gr. 0; V-scroll
+        .byte $41,<dlist,>dlist ; JVB, restart same display list on next frame

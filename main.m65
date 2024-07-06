@@ -1,16 +1,27 @@
 ; Main program.
 
-.include "utils.s"
+*=$8000
 
-.export _main
-.import TERMINIT, TERMCLOSE, PRINT, GETCH, PUTCH
-.importzp BUFPTR
+; Program entry:
+main:
+    jsr _CIO_TEST
+    rts
+    rts
 
+; Includes:
+.include "sysequates.m65"
+.include "utils.m65"
+.include "cio.m65"
+.include "termio.m65"
+.include "dlist.m65"
+
+; Main program:
 MSG:  .byte "Hello World!",$9B
 
 _CIO_TEST:
     ; Init
     jsr TERMINIT
+    ;jsr dl_install
 
     ; Print
     staddr MSG,BUFPTR
@@ -31,9 +42,3 @@ loop:
     jsr TERMCLOSE
 
     rts
-
-_main:
-    jsr _CIO_TEST
-    rts
-
-

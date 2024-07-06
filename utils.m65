@@ -1,0 +1,14 @@
+; Utilities & Macros
+
+; Macro to take location (addr) and put at (pointer)
+; Only uses the A register
+.macro staddr ; addr,pointer
+    .IF %0<>2
+        .ERROR "staddr needs 2 params"
+    .ENDIF
+    lda #<%1
+    sta %2
+    lda #>%1
+    sta %2+1
+.endm
+

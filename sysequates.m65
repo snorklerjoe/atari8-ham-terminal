@@ -1,0 +1,54 @@
+;
+; Equates for the Atari os / system / etc.
+;
+; Produced from Mapping the Atari, as well as the cc65 atari.inc file.
+;
+;
+
+
+; CIO Stuff
+
+; Commands
+OPEN    = $03           ;open
+GETREC  = $05           ;get record
+GETCHR  = $07           ;get character(s)
+PUTREC  = $09           ;put record
+PUTCHR  = $0B           ;put character(s)
+CLOSE   = $0C           ;close
+
+; Open modes
+APPEND  = $01           ;open write append (D:)
+OPNIN   = $04           ;open for input
+OPNOT   = $08           ;open for output
+MXDMOD  = $10           ;open for mixed mode (E:, S:)
+INSCLR  = $20           ;open for input without clearing screen
+
+
+; IOCB
+IOCB0   = $0340         ;Start of IOCB0
+
+ICCOM   = $0342         ;COMMAND CODE
+ICSTA   = $0343         ;STATUS OF LAST IOCB ACTION
+
+ICBAL   = $0344         ;1-byte low buffer address
+ICBAH   = $0345         ;1-byte high buffer address
+ICBLL   = $0348         ;1-byte low buffer length
+ICBLH   = $0349         ;1-byte high buffer length
+
+ICAX1   = $034A         ;1-byte first auxiliary information
+ICAX2   = $034B         ;1-byte second auxiliary information
+
+; CIO Vector
+CIOV    = $E456
+
+
+; Display Equates
+WSYNC   = $D40A
+COLBK   = $D10A
+SDLSTL  = $230
+
+; Other OS Equates
+CH      = $2FC
+NMIEN   = $D40E
+
+

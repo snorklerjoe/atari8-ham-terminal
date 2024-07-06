@@ -1,17 +1,12 @@
 ; Screen i/o
-.include "atari.inc"
-.include "utils.s"
-
-.export TERMINIT, TERMCLOSE, PRINT, PUTCH, GETCH, CHRAVAIL
-.import CIO_OPEN, CIO_CLOSE, CIO_WRITE, CIO_GET, CIO_PUT
-.importzp BUFPTR
 
 ; If using IOCB0, it could break other things that expect that to be E:
-SCR_IOCB = $10
-KEY_IOCB = $20
+SCR_IOCB = $00
+KEY_IOCB = $10
 
 SDEV: .byte "E:",$9B
 KDEV: .byte "K:",$9B
+
 
 ; Inits the screen & kbd and opens IOCB0
 TERMINIT:
@@ -55,13 +50,24 @@ PRINT:
     jsr CIO_WRITE
     rts
 
+
 _CHRBUF: .byte $00, $9B
 
-; Gets char from kbd into A
+; Clears buffer & gets char from kbd into A
 GETCH:
     ldx #KEY_IOCB
     lda #$FF
     sta CH
+    staddr _CHRBUF,BUFPTR
+    lda #01
+    jsr CIO_GET
+    lda _CHRBUF
+    rts
+
+
+; Gets char from kbd (or buffer) into A
+READCH:
+    ldx #KEY_IOCB
     staddr _CHRBUF,BUFPTR
     lda #01
     jsr CIO_GET

@@ -22,3 +22,16 @@ APRS Mode:
 - [ ] APRS packet logging to a file or printer & plotting any log on map
 
 - [ ] APRS digipeater?
+
+## Development
+
+To run `compile.sh`, you need:
+
+- bash
+- atari-tools
+- wget
+- cc65
+
+The `compile.sh` script should be run from the root of the repo,
+and will download a dos image from online (not mine), assemble hamterm, and add it to the image.  
+In the end, you will be left with a bootable atr image `hamterm.atr`.

@@ -2,10 +2,6 @@
 ; Some basic CIO helper routines
 ;
 
-.include "atari.inc"
-.export CIO_OPEN, CIO_CLOSE, CIO_WRITE, CIO_GET, CIO_PUT, CIO_ARBITRARY
-.exportzp BUFPTR
-
 
 ; Zero-page equates
 BUFPTRL = $CB

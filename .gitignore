@@ -5,3 +5,12 @@
 *.map
 
 .vscode
+*.arc
+*.atr
+*.DCM
+
+.venv/
+
+a8ds
+
+*.65o
