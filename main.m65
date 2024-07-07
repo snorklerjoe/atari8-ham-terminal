@@ -19,9 +19,9 @@
 .include "zpregs.m65"
 .include "utils.m65"
 .include "cio.m65"
+.include "cursor.m65"
 .include "termio.m65"
 .include "dlist_util.m65"
-.include "cursor.m65"
 
 ; Main program:
 MSG:  .byte "Hello World!",$9B

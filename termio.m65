@@ -66,11 +66,17 @@ CHRAVAIL:
     rts
 
 
-;; Puts char from A to screen
-;PUTCH:
-;    sta _CHRBUF
-;    ldx #SCR_IOCB
-;    staddr _CHRBUF,BUFPTR
-;    lda #01
-;    jsr CIO_PUT
-;    rts
+; Puts char from A to screen
+; Uses A,Y
+.local
+PUTCH:
+    ; Convert ATASCII to internal char code
+    cmp #32
+    blt @01
+    sbc #32
+    jmp @02
+@01: ; Less than ATASCII 32
+    adc #64
+@02:
+    jsr PUTINT
+    rts

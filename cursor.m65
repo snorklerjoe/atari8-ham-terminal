@@ -48,9 +48,9 @@ ZERO:
 
 
 .local
-; Puts the char in A at the cursor location and increments the cursor
+; Puts the internal char code in A at the cursor location and increments the cursor
 ; Uses A, Y
-PUTCH:
+PUTINT:
     ldy COLCRS
     sta (LINADR),y
     clc
