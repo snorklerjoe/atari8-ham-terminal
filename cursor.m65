@@ -10,6 +10,7 @@ COLCRS  = $56
 
 ; Address of the current cursor location (LSB,MSB)
 CRSADR  = $5E
+LINADR  = $CE
 
 
 ; .local
@@ -39,6 +40,7 @@ CRSADR  = $5E
 ; Puts the cursor in the "zero" position
 ZERO:
     staddr cursor_zero,CRSADR
+    staddr cursor_zero,LINADR
     mov16 #numrows,ROWCRS
     lda #00
     sta COLCRS
@@ -47,17 +49,18 @@ ZERO:
 
 .local
 ; Puts the char in A at the cursor location and increments the cursor
-; Uses A
+; Uses A, Y
 PUTCH:
-    sta CRSADR
+    ldy COLCRS
+    sta (LINADR),y
+    clc
     inc COLCRS
-    lda COLCRS
-    cmp #numcolumns  ; If we wrap to the next line,
-    bne @01
-    inc ROWCRS      ; wrap.
-    lda #00
-    sta COLCRS
-@01:
+;     lda COLCRS
+;     cmp #numcolumns  ; If we wrap to the next line,
+;     bne @01
+;     lda #00
+;     sta COLCRS
+; @01:
     inc16 CRSADR
     rts
 ;    jmp position  ; Update address for the next time

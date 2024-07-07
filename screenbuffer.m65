@@ -11,7 +11,7 @@ colremainder= 8
 
 ; Number of rows in the scrollable buffer
 numrows     = 40
-screen_rows = 24
+screen_rows = 22
 
 screen_staticbuf:
     .sbyte " ANTIC MODE 2, NOT SCROLLED, FIRST LINE "
