@@ -1,0 +1,27 @@
+;
+; A scrollable text buffer for the display,
+; as well as a 1-line non-scrollable status bar buffer.
+;
+
+; Number of columns on the screen
+numcolumns  = 40
+; For speedy, macro-driven multiplication by the numcolumns
+colshift    = 5
+colremainder= 8
+
+; Number of rows in the scrollable buffer
+numrows     = 40
+screen_rows = 24
+
+screen_staticbuf:
+    .sbyte " ANTIC MODE 2, NOT SCROLLED, FIRST LINE "
+    ;    .ds numcolumns
+
+offscr_scrollablebuf:
+    .sbyte " ANTIC MODE 2,  UP SCROLLED, FIRST LINE "
+    .ds (numcolumns * (numrows - screen_rows - 1))
+screen_scrollablebuf:
+    .sbyte " ANTIC MODE 2, YES SCROLLED, FIRST LINE "
+    .ds (numcolumns * (screen_rows - 2))
+cursor_zero:
+    .sbyte " ANTIC MODE 2, YES SCROLLED,  LAST LINE "

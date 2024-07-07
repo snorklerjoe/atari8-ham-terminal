@@ -46,9 +46,12 @@ CIOV    = $E456
 WSYNC   = $D40A
 COLBK   = $D10A
 SDLSTL  = $230
+VDSLST  = $200
+
 
 ; Other OS Equates
 CH      = $2FC
 NMIEN   = $D40E
+INITAD  = $2E2
 
-
+WARMSV  = $E474

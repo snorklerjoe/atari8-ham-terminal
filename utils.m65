@@ -12,3 +12,39 @@
     sta %2+1
 .endm
 
+; Macro to copy a 16-bit word from one location to another
+.macro mov16 ; to,from
+    .IF %0<>2
+        .ERROR "mov16 needs 2 16 bit params"
+    .ENDIF
+    lda %1
+    sta %2
+    lda %1+2
+    sta %2+1
+.endm
+
+; Macro to multiply A by a constant value -- Give # shifts, # adds
+.macro constmult8 ; k
+    .if %0<>2
+        .error "mult8 needs #shifts, #adds"
+    .endif
+    sta MULTREG
+    .rept %1
+        asl
+    .endr
+    .rept %2
+        adc MULTREG
+    .endr
+.endm
+
+; macro to increment a 16-bit value in memory (LSB, MSB)
+.macro inc16 ; addr
+    .if %0<>1
+        .error "inc16 needs addr"
+    .endif
+    clc
+    inc %1
+    bcc @incdone
+    inc %1+1
+@incdone:
+.endm

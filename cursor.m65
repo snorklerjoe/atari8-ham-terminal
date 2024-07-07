@@ -1,0 +1,64 @@
+;
+; Handles drawing the cursor & location thereof
+; & also plotting
+;
+
+; Zero-page locations used by OS screen editor...
+; We can use these because we don't care about that.
+ROWCRS  = $54  ; Two-bytes for scrollable buffer (LSB,MSB)
+COLCRS  = $56
+
+; Address of the current cursor location (LSB,MSB)
+CRSADR  = $5E
+
+
+; .local
+; ; Calculates CRSADR from position
+; POSITION:
+;     ; Multiply Y by num cols
+;     lda ROWCRS
+;     clc
+;     constmult8 colshift,colremainder
+;     ; Store LSB
+;     sta CRSADR
+
+;     ; Multiply MSB
+;     lda ROWCRS+1
+;     constmult8 colshift,colremainder
+;     sta CRSADR+1
+
+;     ; Increment the MSB result if carry set from LSB mult
+;     bcc .01
+;     inc CRSADR+1
+; .01:
+
+;     ; Next, add the 
+;     rts
+
+
+; Puts the cursor in the "zero" position
+ZERO:
+    staddr cursor_zero,CRSADR
+    mov16 #numrows,ROWCRS
+    lda #00
+    sta COLCRS
+    rts
+
+
+.local
+; Puts the char in A at the cursor location and increments the cursor
+; Uses A
+PUTCH:
+    sta CRSADR
+    inc COLCRS
+    lda COLCRS
+    cmp #numcolumns  ; If we wrap to the next line,
+    bne @01
+    inc ROWCRS      ; wrap.
+    lda #00
+    sta COLCRS
+@01:
+    inc16 CRSADR
+    rts
+;    jmp position  ; Update address for the next time
+    ;rts    ; position will return for us :)

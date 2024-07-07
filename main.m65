@@ -1,44 +1,67 @@
 ; Main program.
 
-*=$8000
+; Display memory
+.bank
+*=$A000
+.include "screenbuffer.m65"
 
-; Program entry:
-main:
-    jsr _CIO_TEST
-    rts
-    rts
+; Custom display list
+.bank
+*=$600
+.include "dlist.m65"
+
+; Main code
+.bank
+*=$8000
 
 ; Includes:
 .include "sysequates.m65"
+.include "zpregs.m65"
 .include "utils.m65"
 .include "cio.m65"
 .include "termio.m65"
-.include "dlist.m65"
+.include "dlist_util.m65"
+.include "cursor.m65"
 
 ; Main program:
 MSG:  .byte "Hello World!",$9B
 
+; Program entry:
+init:
+    jmp _CIO_TEST
+
 _CIO_TEST:
     ; Init
+    jsr dl_install
     jsr TERMINIT
-    ;jsr dl_install
+    jsr ZERO
 
     ; Print
-    staddr MSG,BUFPTR
-    jsr PRINT
+;    staddr MSG,BUFPTR
+;    jsr PRINT
 
 loop:
     ; Wait for char
     jsr GETCH
+    tax
     ; write it
     jsr PUTCH
+    txa
     cmp #$9B
     bne loop
 
-    staddr MSG,BUFPTR
-    jsr PRINT
+;    staddr MSG,BUFPTR
+;    jsr PRINT
 
+closedown:
     ; Close
     jsr TERMCLOSE
+    pla  ; Pull return addr from stack
+    pla
+    jmp WARMSV
 
-    rts
+
+; Init vector
+.bank
+*=INITAD
+.word init

@@ -1,50 +1,26 @@
 ; Custom display list
 
-; Display list interrupt
-dli:
-    rti
-    pha
-    lda #00
-    sta WSYNC
-    sta COLBK
-    pla
-    rti
-
-; Install dl
-dl_install:
-    ldx NMIEN
-    lda #00
-    sta NMIEN ; Disable vbi and nmi etc etc
-
-    ; Load display list
-    staddr dlist,SDLSTL
-
-    ; Install dli
-    ;staddr dli,VDSLST
-
-    txa
-    ora #$C0  ; enable vbi and nmi
-    sta NMIEN
-    rts
-
-
-;.ORG $5000
 ; Display list
-; TODO: Dedicated ram loc to ensure it does not cross a page
-dlist:  .byte $70          ; 8 blank lines
-        .byte $05+$80      ; 1-line gr. 0.5 status bar; DLI
-        .byte $70          ; 8 blank lines
-        .byte $02+$80+$20  ; 1-line gr. 0; DLI; V-scroll
-        .byte $02+$20      ; 1-line gr. 0; V-scroll
-        .byte $02+$20      ; 1-line gr. 0; V-scroll
-        .byte $02+$20      ; 1-line gr. 0; V-scroll
-        .byte $02+$20      ; 1-line gr. 0; V-scroll
-        .byte $02+$20      ; 1-line gr. 0; V-scroll
-        .byte $02+$20      ; 1-line gr. 0; V-scroll
-        .byte $02+$20      ; 1-line gr. 0; V-scroll
-        .byte $02+$20      ; 1-line gr. 0; V-scroll
-        .byte $02+$20      ; 1-line gr. 0; V-scroll
-        .byte $02+$20      ; 1-line gr. 0; V-scroll
-        .byte $02+$20      ; 1-line gr. 0; V-scroll
-        .byte $02+$20      ; 1-line gr. 0; V-scroll
-        .byte $41,<dlist,>dlist ; JVB, restart same display list on next frame
+dlist:
+;  .BYTE $70, $70, $70, $42, $40, $9c, $82, $82, $82, $82
+;  .BYTE $82, $82, $82, $82, $82, $82, $82, $82, $82, $82
+;  .BYTE $8x2, $82, $82, $82, $82, $82, $82, $82, $82, $41
+;  .BYTE $20, $9c
+
+    .byte $70,$70,$70       ; 24 blank lines
+
+    ; Static status region
+    .byte $42,<screen_staticbuf, >screen_staticbuf ; 2 Mode 2 lines + LMS + address
+
+    .byte $70
+
+    ; Scrollable region
+    .byte $42               ; Mode 2 + LMS
+dlist_coarse_address
+    .byte <screen_scrollablebuf,>screen_scrollablebuf
+
+    .rept screen_rows
+        .byte $02
+    .endr
+
+    .byte $41,<dlist,>dlist ; JVB ends display list

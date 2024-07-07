@@ -1,0 +1,7 @@
+;
+; Hamterm-specific zero page registers
+;
+
+; $CB thru $D3 should be free
+MULTREG = $CB
+

@@ -1,26 +1,13 @@
 ; Screen i/o
 
 ; If using IOCB0, it could break other things that expect that to be E:
-SCR_IOCB = $00
-KEY_IOCB = $10
+KEY_IOCB = $20
 
-SDEV: .byte "E:",$9B
 KDEV: .byte "K:",$9B
 
 
 ; Inits the screen & kbd and opens IOCB0
 TERMINIT:
-    ; SCREEN
-    ; Close if previously opened...
-    ldx #SCR_IOCB
-    jsr CIO_CLOSE
-
-    ; Open anew...
-    staddr SDEV,BUFPTR
-    lda #OPNOT
-    jsr CIO_OPEN
-
-
     ; KEYBOARD
     ; Close if previously opened...
     ldx #KEY_IOCB
@@ -34,10 +21,6 @@ TERMINIT:
 
 ; Closes down the screen
 TERMCLOSE:
-    ; SCREEN
-    ldx #SCR_IOCB
-    jsr CIO_CLOSE
-
     ; KEYBOARD
     ldx #KEY_IOCB
     jsr CIO_CLOSE
@@ -45,10 +28,10 @@ TERMCLOSE:
 
 ; Prints to the screen 
 ; Call after a `staddr {buf} BUFPTR`
-PRINT:
-    ldx #SCR_IOCB
-    jsr CIO_WRITE
-    rts
+;PRINT:
+;    ldx #SCR_IOCB
+;    jsr CIO_WRITE
+;    rts
 
 
 _CHRBUF: .byte $00, $9B
@@ -83,11 +66,11 @@ CHRAVAIL:
     rts
 
 
-; Puts char from A to screen
-PUTCH:
-    sta _CHRBUF
-    ldx #SCR_IOCB
-    staddr _CHRBUF,BUFPTR
-    lda #01
-    jsr CIO_PUT
-    rts
+;; Puts char from A to screen
+;PUTCH:
+;    sta _CHRBUF
+;    ldx #SCR_IOCB
+;    staddr _CHRBUF,BUFPTR
+;    lda #01
+;    jsr CIO_PUT
+;    rts

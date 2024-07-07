@@ -1,0 +1,44 @@
+;
+; Utils for display list stuff
+;
+
+ORIG_NMIEN .byte $FF
+ORIG_SDLSTL .byte $FF,$FF
+
+; Display list interrupt
+dli:
+    rti
+    pha
+    lda #00
+    sta WSYNC
+    sta COLBK
+    pla
+    rti
+
+; Install dl
+dl_install:
+    ldx NMIEN
+    stx ORIG_NMIEN
+    lda #00
+    sta NMIEN ; Disable vbi and nmi etc etc
+
+
+    ; Save current display list
+    mov16 SDLSTL,ORIG_SDLSTL
+    ; Load display list
+    staddr dlist,SDLSTL
+
+    ; Install dli
+    staddr dli,VDSLST
+
+    txa
+    ora #$C0  ; enable vbi and nmi
+    sta NMIEN
+    rts
+
+; Restore original dl
+dl_restore:
+    lda ORIG_NMIEN
+    sta NMIEN
+    mov16 ORIG_SDLSTL,SDLSTL
+    rts
