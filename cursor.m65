@@ -65,3 +65,52 @@ PUTINT:
     rts
 ;    jmp position  ; Update address for the next time
     ;rts    ; position will return for us :)
+
+.local
+; Moves a the next line (after address LINADR) on the screen up by one
+; Uses A, Y, ARITHBUF
+MOVLN:
+    ; Calculate addr of next line down
+    mov16 LINADR, ARITHBUF
+    adc16 ARITHBUF, numcolumns
+
+    ; For each char in line
+    ldy #00
+@loop:
+    lda (ARITHBUF), Y
+    sta (LINADR), Y
+    iny
+
+    ; Loop for each char in line
+    cpy #numcolumns
+    bne @loop
+    rts
+
+.local
+; Scrolls each line up one, discarding the last
+SCROLLUP:
+    ; Push current line loc to stack
+    lda LINADR
+    pha
+    lda LINADR+1
+    pha
+    ; For each line in buffer, starting with the top
+    staddr offscr_scrollablebuf, LINADR
+
+    ldy #numrows
+
+    ?loop
+    jsr MOVLN
+    adc168 LINADR, numcolumns
+
+    ; Decrement & loop if not zero
+    dey
+    bne ?loop
+
+    ; Restore line loc
+    pla
+    sta LINADR+1
+    pla
+    sta LINADR
+
+    rts

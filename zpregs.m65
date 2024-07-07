@@ -5,3 +5,4 @@
 ; $CB thru $D3 should be free
 MULTREG = $CB
 
+ARITHBUF = $D0

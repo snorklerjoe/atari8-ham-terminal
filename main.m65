@@ -49,6 +49,9 @@ loop:
     txa
     cmp #$9B
     bne loop
+;    jsr MOVLN
+    jsr SCROLLUP
+    jmp loop
 
 ;    staddr MSG,BUFPTR
 ;    jsr PRINT
