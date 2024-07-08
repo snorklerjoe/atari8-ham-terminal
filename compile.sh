@@ -19,4 +19,5 @@ cp "$DOS_ATR_FILE" hamterm.atr
 cp hamterm.com "$AUTORUN_NAME"
 atr hamterm.atr rm startup.exc
 atr hamterm.atr put hamterm.com
+atr hamterm.atr put startup.exc
 rm "$AUTORUN_NAME"
