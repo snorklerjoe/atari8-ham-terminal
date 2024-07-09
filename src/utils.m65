@@ -66,35 +66,20 @@
 .endm
 
 ; macro to subtract (w/carry) 8-bit val from a 16-bit value in memory (LSB, MSB)
-; Uses A
+; Uses A; ends with lsb stored in A
 .macro sbc168 ; addr,val
     .if %0<>2
         .error "sbc16 needs addr,val"
     .endif
     lda %1
-    bne @msbborrowdone  ; Branch past msb decrement if init lsb not zero
+;    cmp #%2
+    sec
+    sbc #%2
+    bcs @msbborrowdone  ; Branch past msb decrement if init lsb not zero
 
     dec %1+1  ; Decrement the MSB
 
 @msbborrowdone
-    lda %1 ; subtract from LSB no matter what
-    sbc %2
+    ;lda %1 ; subtract from LSB no matter what
     sta %1
-.endm
-
-
-; macro to add (w/carry) 8-bit val to a 16-bit value in memory (LSB, MSB)
-; Uses A
-.macro adc168 ; addr,val
-    .if %0<>2
-        .error "adc16 needs addr,val"
-    .endif
-    clc
-    lda %1 ; add to LSB no matter what
-    adc %2
-    sta %1
-
-    bcc @nocarry
-    inc %1+1  ; Increment the MSB
-@nocarry
 .endm
