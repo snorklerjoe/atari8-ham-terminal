@@ -14,13 +14,23 @@ dlist:
 
     .byte $70
 
-    ; Scrollable region
-    .byte $42               ; Mode 2 + LMS
-dlist_coarse_address
-    .byte <screen_scrollablebuf,>screen_scrollablebuf
+    ; Scrollable region    
 
-    .rept screen_rows
-        .byte $02
+    .byte $42               ; Mode 2 + LMS
+dlist_coarse_address_top
+    ; initial values:
+    .byte <dlist_lineaddr_uninit_msg, >dlist_lineaddr_uninit_msg
+
+
+    .rept screen_rows-2
+        .byte $42               ; Mode 2 + LMS
+        .byte <dlist_lineaddr_uninit_msg, >dlist_lineaddr_uninit_msg
     .endr
+
+    .byte $42               ; Mode 2 + LMS
+dlist_coarse_address0
+    ; initial values:
+    .byte <dlist_lineaddr_uninit_msg, >dlist_lineaddr_uninit_msg
+
 
     .byte $41,<dlist,>dlist ; JVB ends display list

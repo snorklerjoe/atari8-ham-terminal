@@ -3,15 +3,6 @@
 ; & also plotting
 ;
 
-; Zero-page locations used by OS screen editor...
-; We can use these because we don't care about that.
-ROWCRS  = $54  ; Two-bytes for scrollable buffer (LSB,MSB)
-COLCRS  = $56
-
-; Address of the current cursor location (LSB,MSB)
-CRSADR  = $5E
-LINADR  = $CE
-
 
 ; .local
 ; ; Calculates CRSADR from position
@@ -66,51 +57,53 @@ PUTINT:
 ;    jmp position  ; Update address for the next time
     ;rts    ; position will return for us :)
 
-.local
-; Moves a the next line (after address LINADR) on the screen up by one
-; Uses A, Y, ARITHBUF
-MOVLN:
-    ; Calculate addr of next line down
-    mov16 LINADR, ARITHBUF
-    adc16 ARITHBUF, numcolumns
 
-    ; For each char in line
-    ldy #00
-@loop:
-    lda (ARITHBUF), Y
-    sta (LINADR), Y
-    iny
 
-    ; Loop for each char in line
-    cpy #numcolumns
-    bne @loop
-    rts
+; .local
+; ; Moves a the next line (after address LINADR) on the screen up by one
+; ; Uses A, Y, ARITHBUF
+; MOVLN:
+;     ; Calculate addr of next line down
+;     mov16 LINADR, ARITHBUF
+;     adc16 ARITHBUF, numcolumns
 
-.local
-; Scrolls each line up one, discarding the last
-SCROLLUP:
-    ; Push current line loc to stack
-    lda LINADR
-    pha
-    lda LINADR+1
-    pha
-    ; For each line in buffer, starting with the top
-    staddr offscr_scrollablebuf, LINADR
+;     ; For each char in line
+;     ldy #00
+; @loop:
+;     lda (ARITHBUF), Y
+;     sta (LINADR), Y
+;     iny
 
-    ldy #numrows
+;     ; Loop for each char in line
+;     cpy #numcolumns
+;     bne @loop
+;     rts
 
-    ?loop
-    jsr MOVLN
-    adc168 LINADR, numcolumns
+; .local
+; ; Scrolls each line up one, discarding the last
+; SCROLLUP:
+;     ; Push current line loc to stack
+;     lda LINADR
+;     pha
+;     lda LINADR+1
+;     pha
+;     ; For each line in buffer, starting with the top
+;     staddr offscr_scrollablebuf, LINADR
 
-    ; Decrement & loop if not zero
-    dey
-    bne ?loop
+;     ldy #numrows
 
-    ; Restore line loc
-    pla
-    sta LINADR+1
-    pla
-    sta LINADR
+;     ?loop
+;     jsr MOVLN
+;     adc168 LINADR, numcolumns
 
-    rts
+;     ; Decrement & loop if not zero
+;     dey
+;     bne ?loop
+
+;     ; Restore line loc
+;     pla
+;     sta LINADR+1
+;     pla
+;     sta LINADR
+
+;     rts

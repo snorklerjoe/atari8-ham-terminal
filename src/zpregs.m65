@@ -2,7 +2,23 @@
 ; Hamterm-specific zero page registers
 ;
 
+
+; Zero-page locations used by OS screen editor...
+; We can use these because we don't care about that.
+ROWCRS  = $54  ; Two-bytes for scrollable buffer (LSB,MSB)
+COLCRS  = $56
+
+; Address of the current cursor location (LSB,MSB)
+CRSADR  = $5E
+LINADR  = $CE
+
+; Address of the lowest visible line on the screen.
+SCREENZERO  = $D2
+
 ; $CB thru $D3 should be free
 MULTREG = $CB
 
+; General-purpose buffer for memory arithmetic
+; (Mostly for screen stuff)
+; Not to be used in an interrupt!
 ARITHBUF = $D0

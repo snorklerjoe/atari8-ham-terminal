@@ -78,5 +78,5 @@ PUTCH:
 @01: ; Less than ATASCII 32
     adc #64
 @02:
-    jsr PUTINT
+;    jsr PUTINT
     rts

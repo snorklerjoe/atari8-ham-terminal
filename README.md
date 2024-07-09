@@ -3,6 +3,8 @@
 A serial terminal program for the atari 8-bits (I am using an Atari 400) to suit my needs for amateur radio.  
 This is written in C to be compiled with the awesome cc65 compiler.
 
+See [Theory of Operation](TheoryOfOperation.md).
+
 There are many terminal programs for the atari that are great, but here is what I want to implement here (we'll see what I get to):
 
 - [ ] UTC Clock in the corner of the screen

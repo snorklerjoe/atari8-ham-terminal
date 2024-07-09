@@ -19,7 +19,6 @@
 .include "zpregs.m65"
 .include "utils.m65"
 .include "cio.m65"
-.include "cursor.m65"
 .include "termio.m65"
 .include "dlist_util.m65"
 
@@ -33,8 +32,8 @@ init:
 _CIO_TEST:
     ; Init
     jsr dl_install
+    jsr dl_setzero
     jsr TERMINIT
-    jsr ZERO
 
     ; Print
 ;    staddr MSG,BUFPTR
@@ -43,16 +42,15 @@ _CIO_TEST:
 loop:
     ; Wait for char
     jsr GETCH
-    tax
-    ; write it
-    jsr PUTCH
-    txa
+;    tax
+;    ; write it
+;    jsr PUTCH
+;    txa
     cmp #$9B
     bne loop
-;    jsr MOVLN
-    jsr SCROLLUP
+    jsr dl_scroll_one
+    jsr dl_setzero
     jmp loop
-
 ;    staddr MSG,BUFPTR
 ;    jsr PRINT
 

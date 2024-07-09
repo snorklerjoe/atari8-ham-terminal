@@ -17,11 +17,15 @@ screen_staticbuf:
     .sbyte " ANTIC MODE 2, NOT SCROLLED, FIRST LINE "
     ;    .ds numcolumns
 
-offscr_scrollablebuf:
+scrollablebuf_start:
     .sbyte " ANTIC MODE 2,  UP SCROLLED, FIRST LINE "
-    .ds (numcolumns * (numrows - screen_rows - 1))
-screen_scrollablebuf:
-    .sbyte " ANTIC MODE 2, YES SCROLLED, FIRST LINE "
-    .ds (numcolumns * (screen_rows - 2))
-cursor_zero:
+    .sbyte " ANTIC MODE 2,  UP SCROLLED, FIRST LINE "
+.rept numrows-2
+    .sbyte "_ANTIC MODE 2,_YES_SCROLLED,____A__LINE_"
+.endr
+scrollablebuf_lastline:
     .sbyte " ANTIC MODE 2, YES SCROLLED,  LAST LINE "
+scollablebuf_end:
+
+dlist_lineaddr_uninit_msg:
+    .sbyte "This line has not yet been initialized!!"

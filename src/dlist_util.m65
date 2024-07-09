@@ -34,6 +34,14 @@ dl_install:
     txa
     ora #$C0  ; enable vbi and nmi
     sta NMIEN
+
+    ; Set cursor position
+    staddr scrollablebuf_lastline,CRSADR
+    staddr scrollablebuf_lastline,LINADR
+    staddr numrows,ROWCRS
+    lda #00
+    sta COLCRS
+
     rts
 
 ; Restore original dl
@@ -42,3 +50,60 @@ dl_restore:
     sta NMIEN
     mov16 ORIG_SDLSTL,SDLSTL
     rts
+
+; Sets the location of the bottom line of the screen on the screenbuffer
+; Also updates each other visible line accordingly
+; Uses A,X, ARITHBUF
+.local
+dl_setzero:
+    ; Load offset
+    ldx #(dlist_coarse_address0 - dlist_coarse_address_top)
+    ; ARITHBUF stores line address for current line in this routine
+    mov16 LINADR, ARITHBUF
+
+?update
+    ; Update value
+    lda ARITHBUF
+    sta dlist_coarse_address_top, X
+    lda ARITHBUF+1
+    sta dlist_coarse_address_top+1, X
+
+    ; Update arithbuf to point to next line
+    sbc168 ARITHBUF, numcolumns
+    ; LSB stored in A after sbc168
+    cmp #<scrollablebuf_start
+    bne ?nextline
+    lda ARITHBUF+1
+    cmp #>scrollablebuf_start
+    bne ?nextline
+
+    ; Well then, we need to wrap to the end of the buffer!
+    staddr scrollablebuf_lastline, ARITHBUF
+
+?nextline
+    ; Move up a row and loop if necessary
+    dex
+    dex
+    dex
+    cpx #(-3)
+    bne ?update
+
+    rts
+
+; Scrolls the display up by one
+.local
+dl_scroll_one:
+    sbc168 LINADR, numcolumns
+
+    cmp #<scrollablebuf_start
+    bne ?nowrap
+    lda LINADR+1
+    cmp #>scrollablebuf_start
+    bne ?nowrap
+    ; Well then, we need to wrap to the end of the buffer!
+    staddr scrollablebuf_lastline, LINADR
+
+?nowrap
+    mov16 LINADR, CRSADR
+    rts
+
