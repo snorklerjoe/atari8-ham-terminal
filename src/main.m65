@@ -42,13 +42,13 @@ _CIO_TEST:
 loop:
     ; Wait for char
     jsr GETCH
-;    tax
-;    ; write it
-;    jsr PUTCH
-;    txa
+    pha
+    ; write it
+    jsr PUTCH
+    pla
     cmp #$9B
     bne loop
-    jsr dl_scroll_one
+    jsr dl_newline
     jsr dl_setzero
     jmp loop
 ;    staddr MSG,BUFPTR

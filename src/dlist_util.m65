@@ -38,9 +38,9 @@ dl_install:
     ; Set cursor position
     staddr scrollablebuf_lastline,CRSADR
     staddr scrollablebuf_lastline,LINADR
-    staddr numrows,ROWCRS
+;    staddr numrows,ROWCRS
     lda #00
-    sta COLCRS
+;    sta COLCRS
 
     rts
 
@@ -66,7 +66,8 @@ dl_setzero:
     lda ARITHBUF
     sta dlist_coarse_address_top, X
     lda ARITHBUF+1
-    sta dlist_coarse_address_top+1, X
+    sta dlist_coarse_address_top+1, X    ldy COLCRS
+
 
     ; Update arithbuf to point to next line
     sbc168 ARITHBUF, numcolumns
@@ -85,7 +86,7 @@ dl_setzero:
     dex
     dex
     dex
-    cpx #(-3)
+    cpx #$FD
     bne ?update
 
     rts
@@ -93,17 +94,48 @@ dl_setzero:
 ; Scrolls the display up by one
 .local
 dl_scroll_one:
-    sbc168 LINADR, numcolumns
+    adc168 LINADR, numcolumns
 
-    cmp #<scrollablebuf_start
+    cmp #<scrollablebuf_lastline
     bne ?nowrap
     lda LINADR+1
-    cmp #>scrollablebuf_start
+    cmp #>scrollablebuf_lastline
     bne ?nowrap
     ; Well then, we need to wrap to the end of the buffer!
-    staddr scrollablebuf_lastline, LINADR
+    staddr scrollablebuf_start, LINADR
 
 ?nowrap
     mov16 LINADR, CRSADR
+    rts
+
+; Scrolls the display up by one and clears a line
+.local
+dl_newline:
+    jsr dl_scroll_one
+    lda #00
+    sta COLCRS  ; "Carriage return"
+    ldy #numcolumns+1
+?loop
+    dey
+    sta (LINADR), Y
+    bne ?loop
+    rts
+
+; Puts an internal charcode to the buf
+.local
+putint:
+    ldy COLCRS
+    sta (LINADR), Y
+    iny
+    sty COLCRS
+    cpy #numcolumns
+    bne ?nowrap
+
+    ; Wrap
+    jsr dl_newline
+    jsr dl_setzero
+
+?nowrap
+    inc16 CRSADR
     rts
 

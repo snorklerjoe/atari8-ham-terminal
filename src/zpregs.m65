@@ -5,7 +5,7 @@
 
 ; Zero-page locations used by OS screen editor...
 ; We can use these because we don't care about that.
-ROWCRS  = $54  ; Two-bytes for scrollable buffer (LSB,MSB)
+;ROWCRS  = $54  ; Two-bytes for scrollable buffer (LSB,MSB)
 COLCRS  = $56
 
 ; Address of the current cursor location (LSB,MSB)
