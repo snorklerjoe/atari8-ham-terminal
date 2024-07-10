@@ -147,6 +147,8 @@ putint:
     jsr dl_setzero
 
 ?nowrap
+    lda #$80
+    sta (LINADR), Y
 ;    inc16 CRSADR
     rts
 
