@@ -19,8 +19,8 @@
 .include "zpregs.m65"
 .include "utils.m65"
 .include "cio.m65"
-.include "termio.m65"
-.include "dlist_util.m65"
+.include "keyb_util.m65"
+.include "disp_util.m65"
 
 ; Main program:
 MSG:  .byte "Hello World!",$9B
@@ -33,7 +33,7 @@ _CIO_TEST:
     ; Init
     jsr dl_install
     jsr dl_setzero
-    jsr TERMINIT
+    jsr keyinit
 
     ; Print
 ;    staddr MSG,BUFPTR
@@ -44,6 +44,8 @@ loop:
     jsr GETCH
     cmp #$1C
     beq scroll_one
+    cmp #126
+    beq bs
     pha
     ; write it
     jsr PUTCH
@@ -63,9 +65,13 @@ scroll_one:
     jsr dl_setzero
     jmp loop
 
+bs:
+    jsr backspace
+    jmp loop
+
 closedown:
     ; Close
-    jsr TERMCLOSE
+    jsr keyclose
     pla  ; Pull return addr from stack
     pla
     jmp WARMSV

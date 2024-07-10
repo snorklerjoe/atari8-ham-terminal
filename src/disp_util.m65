@@ -142,3 +142,32 @@ putint:
 ;    inc16 CRSADR
     rts
 
+; Puts char from A to screen with wrap
+; Uses A,Y
+.local
+PUTCH:
+    ; Convert ATASCII to internal char code
+    cmp #32
+    blt @01
+    sbc #32
+    jmp @02
+@01: ; Less than ATASCII 32
+    adc #64
+@02:
+    jsr PUTINT
+    rts
+
+; Backspace... that's all.
+; uses A,Y
+.local
+backspace:
+    ldy colcrs
+    beq ?nuthin  ; Already at the start of a line = no backspace.
+
+    dey
+    lda #0
+    sta (linadr), y
+    sty colcrs
+
+?nuthin
+    rts

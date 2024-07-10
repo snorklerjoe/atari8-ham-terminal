@@ -7,7 +7,7 @@ KDEV: .byte "K:",$9B
 
 
 ; Inits the screen & kbd and opens IOCB0
-TERMINIT:
+KEYINIT:
     ; KEYBOARD
     ; Close if previously opened...
     ldx #KEY_IOCB
@@ -20,7 +20,7 @@ TERMINIT:
     rts
 
 ; Closes down the screen
-TERMCLOSE:
+KEYCLOSE:
     ; KEYBOARD
     ldx #KEY_IOCB
     jsr CIO_CLOSE
@@ -63,20 +63,4 @@ CHRAVAIL:
     clc
     ldx CH
     inx
-    rts
-
-
-; Puts char from A to screen
-; Uses A,Y
-.local
-PUTCH:
-    ; Convert ATASCII to internal char code
-    cmp #32
-    blt @01
-    sbc #32
-    jmp @02
-@01: ; Less than ATASCII 32
-    adc #64
-@02:
-    jsr PUTINT
     rts
