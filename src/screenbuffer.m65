@@ -24,7 +24,7 @@ scrollablebuf_start:
     .sbyte "_ANTIC MODE 2,_YES_SCROLLED,____A__LINE_"
 .endr
 scrollablebuf_lastline:
-    .sbyte " ANTIC MODE 2, YES SCROLLED,  LAST LINE "
+    .dc numcolumns $00
 scollablebuf_end:
 
 dlist_lineaddr_uninit_msg:

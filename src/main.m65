@@ -42,17 +42,26 @@ _CIO_TEST:
 loop:
     ; Wait for char
     jsr GETCH
+    cmp #$1C
+    beq scroll_one
     pha
     ; write it
     jsr PUTCH
     pla
+    cmp #27
+    beq closedown
     cmp #$9B
     bne loop
-    jsr dl_newline
+    jsr dl_newline  ; TODO: FIX BUG WITH SCROLLING MORE THAN ONCE THRU BUFFER
     jsr dl_setzero
     jmp loop
 ;    staddr MSG,BUFPTR
 ;    jsr PRINT
+
+scroll_one:
+    jsr dl_scroll_one
+    jsr dl_setzero
+    jmp loop
 
 closedown:
     ; Close
@@ -60,7 +69,6 @@ closedown:
     pla  ; Pull return addr from stack
     pla
     jmp WARMSV
-
 
 ; Init vector
 .bank

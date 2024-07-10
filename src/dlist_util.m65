@@ -9,7 +9,7 @@ ORIG_SDLSTL .byte $FF,$FF
 dli:
     rti
     pha
-    lda #00
+    lda #40
     sta WSYNC
     sta COLBK
     pla
@@ -40,7 +40,7 @@ dl_install:
     staddr scrollablebuf_lastline,LINADR
 ;    staddr numrows,ROWCRS
     lda #00
-;    sta COLCRS
+    sta COLCRS
 
     rts
 
@@ -66,45 +66,48 @@ dl_setzero:
     lda ARITHBUF
     sta dlist_coarse_address_top, X
     lda ARITHBUF+1
-    sta dlist_coarse_address_top+1, X    ldy COLCRS
+    sta dlist_coarse_address_top+1, X
 
-
-    ; Update arithbuf to point to next line
-    sbc168 ARITHBUF, numcolumns
-    ; LSB stored in A after sbc168
+    lda arithbuf
     cmp #<scrollablebuf_start
-    bne ?nextline
+    bne ?moveln
     lda ARITHBUF+1
     cmp #>scrollablebuf_start
-    bne ?nextline
+    bne ?moveln
 
     ; Well then, we need to wrap to the end of the buffer!
     staddr scrollablebuf_lastline, ARITHBUF
+    jmp ?nextline
+
+?moveln
+    ; Update arithbuf to point to next line
+    sbc168 ARITHBUF, numcolumns
 
 ?nextline
     ; Move up a row and loop if necessary
     dex
     dex
     dex
-    cpx #$FD
-    bne ?update
+;    cpx #$FD
+    bpl ?update
 
     rts
 
 ; Scrolls the display up by one
 .local
 dl_scroll_one:
-    adc168 LINADR, numcolumns
-
+    lda LINADR
     cmp #<scrollablebuf_lastline
     bne ?nowrap
     lda LINADR+1
     cmp #>scrollablebuf_lastline
     bne ?nowrap
-    ; Well then, we need to wrap to the end of the buffer!
+    ; Well then, we need to wrap to the beginning of the buffer!
     staddr scrollablebuf_start, LINADR
-
+    jmp ?stcaddr
 ?nowrap
+    adc168 LINADR, numcolumns
+?stcaddr
     mov16 LINADR, CRSADR
     rts
 
@@ -114,7 +117,7 @@ dl_newline:
     jsr dl_scroll_one
     lda #00
     sta COLCRS  ; "Carriage return"
-    ldy #numcolumns+1
+    ldy #numcolumns
 ?loop
     dey
     sta (LINADR), Y
@@ -136,6 +139,6 @@ putint:
     jsr dl_setzero
 
 ?nowrap
-    inc16 CRSADR
+;    inc16 CRSADR
     rts
 
