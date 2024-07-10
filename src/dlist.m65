@@ -12,7 +12,8 @@ dlist:
     ; Static status region
     .byte $42,<screen_staticbuf, >screen_staticbuf ; 2 Mode 2 lines + LMS + address
 
-    .byte $70
+    .byte $80
+    .byte $40
 
     ; Scrollable region    
 

@@ -44,7 +44,9 @@ CIOV    = $E456
 
 ; Display Equates
 WSYNC   = $D40A
-COLBK   = $D10A
+COLBK   = $D01A
+COLPF0  = $D016
+COLOR0  = $2C4
 SDLSTL  = $230
 VDSLST  = $200
 

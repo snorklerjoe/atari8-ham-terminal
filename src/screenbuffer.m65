@@ -18,10 +18,11 @@ screen_staticbuf:
     ;    .ds numcolumns
 
 scrollablebuf_start:
-    .sbyte " ANTIC MODE 2,  UP SCROLLED, FIRST LINE "
-    .sbyte " ANTIC MODE 2,  UP SCROLLED, FIRST LINE "
-.rept numrows-2
-    .sbyte "_ANTIC MODE 2,_YES_SCROLLED,____A__LINE_"
+;    .sbyte " ANTIC MODE 2,  UP SCROLLED, FIRST LINE "
+;    .sbyte " ANTIC MODE 2,  UP SCROLLED, FIRST LINE "
+.rept numrows
+    .dc numcolumns $00
+;    .sbyte "_ANTIC MODE 2,_YES_SCROLLED,____A__LINE_"
 .endr
 scrollablebuf_lastline:
     .dc numcolumns $00

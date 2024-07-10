@@ -7,16 +7,24 @@ ORIG_SDLSTL .byte $FF,$FF
 
 ; Display list interrupt
 dli:
-    rti
     pha
-    lda #40
+    lda #$E0
     sta WSYNC
-    sta COLBK
+;    sta COLBK
+    sta COLPF0+2
     pla
     rti
 
 ; Install dl
 dl_install:
+    ; Get colors right
+    lda #$F0
+    sta COLOR0+2
+    sta COLOR0+4
+    lda #$FF
+    sta COLOR0+1
+
+    ; everything else:
     ldx NMIEN
     stx ORIG_NMIEN
     lda #00
@@ -32,7 +40,7 @@ dl_install:
     staddr dli,VDSLST
 
     txa
-    ora #$C0  ; enable vbi and nmi
+    lda #$C0  ; enable vbi and nmi
     sta NMIEN
 
     ; Set cursor position
