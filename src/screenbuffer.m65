@@ -10,20 +10,22 @@ colshift    = 5
 colremainder= 8
 
 ; Number of rows in the scrollable buffer
-numrows     = 40
+numrows     = 50
 screen_rows = 22
 
 screen_staticbuf:
-    .sbyte " ANTIC MODE 2, NOT SCROLLED, FIRST LINE "
+    .sbyte " - Not Connected -             00:00:00 "
     ;    .ds numcolumns
 
-scrollablebuf_start:
-;    .sbyte " ANTIC MODE 2,  UP SCROLLED, FIRST LINE "
-;    .sbyte " ANTIC MODE 2,  UP SCROLLED, FIRST LINE "
-.rept numrows
+scrollablebuf_start:    
+.rept numrows-5
     .dc numcolumns $00
 ;    .sbyte "_ANTIC MODE 2,_YES_SCROLLED,____A__LINE_"
 .endr
+    .sbyte "Atari 8-bit ham terminal,               "
+    .sbyte "(C) 2024 Joseph R. Freeston.            "
+    .sbyte "----------------------------            "
+    .dc numcolumns $00
 scrollablebuf_lastline:
     .dc numcolumns $00
 scollablebuf_end:
