@@ -57,3 +57,8 @@ NMIEN   = $D40E
 INITAD  = $2E2
 
 WARMSV  = $E474
+
+SETVBV  = $E45C
+XITVBV  = $E462
+
+RTCLOK  = $12 ; ,$13,$14

@@ -31,7 +31,7 @@ init:
 
 _CIO_TEST:
     ; Init
-    jsr dl_install
+    jsr dl_vbi_install
     jsr dl_setzero
     jsr keyinit
 
@@ -46,6 +46,7 @@ loop:
     beq scroll_one
     cmp #126
     beq bs
+
     pha
     ; write it
     jsr PUTCH
@@ -54,7 +55,7 @@ loop:
     beq closedown
     cmp #$9B
     bne loop
-    jsr dl_newline  ; TODO: FIX BUG WITH SCROLLING MORE THAN ONCE THRU BUFFER
+    jsr dl_newline
     jsr dl_setzero
     jmp loop
 ;    staddr MSG,BUFPTR

@@ -1,6 +1,10 @@
 ;
-; Utils for display list stuff
+; Utils for display stuff
 ;
+
+; Inverse underbar
+cursor_int=63
+
 
 ORIG_NMIEN .byte $FF
 ORIG_SDLSTL .byte $FF,$FF
@@ -15,8 +19,37 @@ dli:
     pla
     rti
 
-; Install dl
-dl_install:
+.local
+; VBlank Interrupt Routine
+vbi:
+    pha
+    tya
+    pha
+
+    lda RTCLOK+2
+    and #16
+    bne ?nah
+
+    ; Blink cursor (alternate)
+    lda CRSON
+    cmp #00
+    bne ?curoff
+
+    jsr cursor_draw
+    jmp ?nah
+
+?curoff
+    jsr cursor_undraw
+
+
+?nah
+    pla
+    tay
+    pla
+    jmp XITVBV
+
+; Install dl & vbi
+dl_vbi_install:
     ; Get colors right
     lda #$F0
     sta COLOR0+2
@@ -39,7 +72,12 @@ dl_install:
     ; Install dli
     staddr dli,VDSLST
 
-    txa
+    ; Install vbi
+    lda #07
+    ldx #>vbi
+    ldy #<vbi
+    jsr SETVBV
+
     lda #$C0  ; enable vbi and nmi
     sta NMIEN
 
@@ -49,6 +87,10 @@ dl_install:
 ;    staddr numrows,ROWCRS
     lda #00
     sta COLCRS
+
+    lda #00
+    sta crson
+    sta undercrs
 
     rts
 
@@ -104,6 +146,7 @@ dl_setzero:
 ; Scrolls the display up by one
 .local
 dl_scroll_one:
+    jsr cursor_undraw
     lda LINADR
     cmp #<scrollablebuf_lastline
     bne ?nowrap
@@ -135,6 +178,10 @@ dl_newline:
 ; Puts an internal charcode to the buf
 .local
 putint:
+    tax
+    jsr cursor_undraw
+    txa
+
     ldy COLCRS
     sta (LINADR), Y
     iny
@@ -147,8 +194,6 @@ putint:
     jsr dl_setzero
 
 ?nowrap
-    lda #$80
-    sta (LINADR), Y
 ;    inc16 CRSADR
     rts
 
@@ -171,6 +216,7 @@ PUTCH:
 ; uses A,Y
 .local
 backspace:
+    jsr cursor_undraw
     ldy colcrs
     beq ?nuthin  ; Already at the start of a line = no backspace.
 
@@ -180,4 +226,36 @@ backspace:
     sty colcrs
 
 ?nuthin
+    rts
+
+; Draw cursor
+; Uses A, Y
+.local
+cursor_draw:
+    lda crson  ; Cannot draw if already drawn
+    cmp #00
+    bne ?nodraw
+
+    dec crson
+    ldy colcrs
+    lda (linadr), y
+    sta undercrs
+    lda #cursor_int
+    sta (linadr), y
+?nodraw
+    rts
+
+; Undraw cursor
+; Uses A, Y
+.local
+cursor_undraw:
+    lda crson
+    cmp #00
+    beq ?noundraw
+
+    inc crson
+    ldy colcrs
+    lda undercrs
+    sta (linadr), y
+?noundraw
     rts
