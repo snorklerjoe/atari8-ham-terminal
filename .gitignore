@@ -16,3 +16,6 @@ a8ds
 *.65o
 
 asm-symbols.json
+main.lst
+main.xex
+main.lab
