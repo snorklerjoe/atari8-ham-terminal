@@ -19,3 +19,6 @@ asm-symbols.json
 main.lst
 main.xex
 main.lab
+
+altirra_out
+altirra_out/*

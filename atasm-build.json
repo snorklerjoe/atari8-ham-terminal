@@ -8,7 +8,7 @@
 	"includes": ["src/"],
 
 	"_3": "Which folder will all the output files be written to. 'out' by default. Always in the workspace!",
-	"outputFolder": ".",
+	"outputFolder": "altirra_out",
 
 	"_4": "Additional Atasm parameters:-v -s -u -r -fvalue",
 	"params": "",
