@@ -11,7 +11,7 @@ AUTORUN_NAME="autorun.sys"
 cp "$DOS_ATR_FILE" hamterm.atr
 
 cd src
-atasm ./main.m65 -o"../hamterm.com"
+atasm -ha../a8hamtermeq.m65  ./main.m65 -o"../hamterm.com"
 cd ..
 
 # Place binary in the image as an autorun file

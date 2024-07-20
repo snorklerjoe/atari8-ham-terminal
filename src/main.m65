@@ -2,12 +2,12 @@
 
 ; Display memory
 .bank
-*=$A000
+* = $A000 "Screen Buffer"
 .include "screenbuffer.m65"
 
 ; Custom display list
 .bank
-*=$600
+* = $600 "Display List"
 .include "dlist.m65"
 
 ; Main code
@@ -15,15 +15,25 @@
 *=$8000
 
 ; Includes:
+;  equates & macros
 .include "sysequates.m65"
 .include "zpregs.m65"
 .include "utils.m65"
+;  configuration
+.include "config.m65"
+;  low-level i/o
 .include "cio.m65"
 .include "keyb_util.m65"
 .include "disp_util.m65"
+;  high-level i/o
+.include "conio.m65"
+.include "a850io.m65"
+
+; High-level code
+.include "configmenu.m65"
 
 ; Main program:
-MSG:  .byte "Hello World!",$9B
+MSG:  .byte "Hello World!",$9B,$00
 
 ; Program entry:
 init:
@@ -42,10 +52,18 @@ _CIO_TEST:
 loop:
     ; Wait for char
     jsr GETCH
+
+    ; Handle scrolling & Backspace
     cmp #$1C
-    beq scroll_one
+    beq scroll_one_back
+    cmp #$1D
+    beq scroll_one_fwd
     cmp #126
     beq bs
+
+    ; Handle config
+    cmp #01
+    beq main_config_menu
 
     pha
     ; write it
@@ -53,21 +71,40 @@ loop:
     pla
     cmp #27
     beq closedown
-    cmp #$9B
-    bne loop
-    jsr dl_newline
-    jsr dl_setzero
+;    cmp #$9B
+;    bne loop
+;    jsr dl_newline
+;    jsr dl_setzero
     jmp loop
 ;    staddr MSG,BUFPTR
 ;    jsr PRINT
 
-scroll_one:
+scroll_one_back:
+    jsr cursor_undraw
+    jsr discurs
+    jsr dl_scroll_back_one
+    jsr dl_setzero
+    jmp loop
+scroll_one_fwd:
+    jsr cursor_undraw
+    jsr discurs
     jsr dl_scroll_one
     jsr dl_setzero
     jmp loop
 
 bs:
+    jsr encurs
+    jsr cursor_undraw
     jsr backspace
+    jmp loop
+
+; On CTRL-A...
+main_config_menu:
+    tempsetcolor 4,255
+
+    jsr config_menu
+
+    returncolor 4
     jmp loop
 
 closedown:

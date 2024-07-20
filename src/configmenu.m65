@@ -1,0 +1,190 @@
+;
+; Strings and logic for the config menu.
+;
+
+caps=32
+
+; menu conditionals-- launches menu subroutine.
+; Each manu item subroutine should end with #00 in A
+config_menu_conditionals:
+    cmp #67 ; C
+    jmpeq config_menu_clock
+
+    cmp #75 ; K
+    jmpeq config_menu_keyclick
+
+    cmp #76 ; L
+    jmpeq config_menu_logfile
+
+    cmp #84 ; T
+    jmpeq config_menu_logtranslation
+
+    cmp #82 ; R
+    jmpeq config_menu_serdev
+
+    cmp #66 ; B
+    jmpeq config_menu_serbaud
+
+    cmp #83 ; S
+    jmpeq config_menu_serstopbits
+
+    cmp #70 ; F
+    jmpeq config_menu_serflowctrl
+
+    cmp #65 ; A
+    jmpeq config_menu_sertranslation
+
+    cmp #87 ; W
+    jmpeq config_menu_serword
+
+    cmp #80 ; P
+    jmpeq config_menu_serparity
+
+    cmp #68 ; D
+    jmpeq config_menu_save
+
+    cmp #72 ; H
+    jmpeq config_menu_help
+
+    rts
+
+; Menu items
+config_menu_clock:
+    jmp config_unimplemented
+
+config_menu_keyclick:
+    jmp config_unimplemented
+
+config_menu_logfile:
+    jmp config_unimplemented
+
+config_menu_logtranslation:
+    jmp config_unimplemented
+
+config_menu_serdev:
+    jmp config_unimplemented
+
+config_menu_serbaud:
+    jmp config_unimplemented
+
+config_menu_serstopbits:
+    jmp config_unimplemented
+
+config_menu_serflowctrl:
+    jmp config_unimplemented
+
+config_menu_sertranslation:
+    jmp config_unimplemented
+
+config_menu_serword:
+    jmp config_unimplemented
+
+config_menu_serparity:
+    jmp config_unimplemented
+
+config_menu_save:
+    jmp config_unimplemented
+
+config_menu_help:
+    jsr print_config_menu
+    lda #00
+    rts
+
+config_unimplemented:
+    puts config_unimplemented_msg
+    lda #00
+    rts
+
+config_unimplemented_msg
+    .byte "Config option unimplemented!",$9B,$00
+
+; GETCH's and processes menu item
+.local
+config_menu:
+    jsr GETCH
+
+    jsr config_menu_conditionals
+    cmp #00
+    beq ?back
+    
+    sbc #caps  ; Try the lowercase version
+    jsr config_menu_conditionals
+    cmp #00
+    bne print_no_such_option
+
+?back
+    rts
+
+; RETURN prints the next section, q exits
+print_config_menu
+    puts CONFIG_MENU_TEXT
+
+    jsr GETCH
+    cmp #27 ; esc
+    beq @exit_conf
+    cmp #81 ; Q
+    beq @exit_conf
+
+    puts CONFIG_MENU_TEXT2
+    jsr dl_setzero
+
+    jsr GETCH
+    cmp #27 ; esc
+    beq @exit_conf
+    cmp #81 ; Q
+    beq @exit_conf
+
+    puts CONFIG_MENU_TEXT3
+    jsr dl_setzero
+
+@exit_conf
+    rts
+
+print_no_such_option
+    pha
+    puts NO_SUCH_MENU_OPTION
+    pla
+    jsr putch
+    puts NO_SUCH_MENU_OPTION_END
+    rts
+
+
+
+CONFIG_FILE_NAME
+    .byte "D:CONFIG.BIN", $9B
+
+NO_SUCH_MENU_OPTION
+    .byte $9B,"No such menu option '",$00
+NO_SUCH_MENU_OPTION_END
+    .byte "'!",$9B,$9B,$00
+
+CONFIG_MENU_TEXT
+    .byte "Available configuration:", $9B
+    .byte "------------------------", $9B,$9B
+    .byte "(RETURN for next section)", $9B
+    .byte $9B,
+    .byte "User Interface Preferences:", $9B
+    .byte " C - Clock on/off", $9B
+    .byte " K - Key click on/off", $9B
+    .byte $9B
+    .byte "Logging Preferences:", $9B
+    .byte " L - Log file (or device)", $9B
+    .byte " T - Log ASCII/ATASCII translation", $9B,$9B, $00
+CONFIG_MENU_TEXT2
+    .byte "Serial Connection Parameters:", $9B
+    .byte " R - Device #", $9B
+    .byte " B - Baud Rate", $9B
+    .byte " S - Stop Bits", $9B
+    .byte " F - Flow Control", $9B
+    .byte " A - ASCII/ATASCII translation", $9B
+    .byte " W - Word size (bits)", $9B
+    .byte " P - Parity", $9B
+    .byte $9B,$00
+CONFIG_MENU_TEXT3
+    .byte "Save / Restore from D:CONFIG.BIN", $9B
+    .byte " D - SAVE config TO Disk", $9B
+;    .byte " > - LOAD config FROM disk", $9B
+    .byte $9B
+    .byte "H - Show this configuration menu", $9B
+    .byte $9B,$00
+

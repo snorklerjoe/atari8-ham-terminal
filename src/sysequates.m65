@@ -24,6 +24,9 @@ MXDMOD  = $10           ;open for mixed mode (E:, S:)
 INSCLR  = $20           ;open for input without clearing screen
 
 
+; Atari 850 Stuff
+
+
 ; IOCB
 IOCB0   = $0340         ;Start of IOCB0
 

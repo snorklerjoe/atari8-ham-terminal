@@ -1,0 +1,25 @@
+;
+; Console i/o stuff.
+;
+
+; Prints a 0-terminated string
+; Give str addr
+; Will wrap. Must be len<256
+.macro puts ; str_addr
+.local
+    jsr cursor_undraw
+    ldx #00
+@loop_conio_puts
+    txa
+    pha
+    lda %1, x
+    cmp #00
+    beq @doneloop_conio_puts
+    jsr putch
+    pla
+    tax
+    inx
+    jmp @loop_conio_puts
+@doneloop_conio_puts
+    pla
+.endm

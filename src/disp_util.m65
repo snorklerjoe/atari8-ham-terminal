@@ -2,7 +2,7 @@
 ; Utils for display stuff
 ;
 
-; Inverse underbar
+; underbar
 cursor_int=63
 
 
@@ -11,28 +11,35 @@ ORIG_SDLSTL .byte $FF,$FF
 
 ; Display list interrupt
 dli:
+    php
     pha
     lda #$E0
     sta WSYNC
 ;    sta COLBK
     sta COLPF0+2
     pla
+    plp
     rti
 
 .local
 ; VBlank Interrupt Routine
-vbi:
+vbi:  ; TODO: shut off cursor blink completely when necessary
+    php
+    pha
+    txa
     pha
     tya
     pha
 
     lda RTCLOK+2
-    and #16
+    and #~00001111
     bne ?nah
 
-    ; Blink cursor (alternate)
+    ; Toggle cursor
     lda CRSON
-    cmp #00
+    cmp #$FF
+    beq ?nah
+    cmp #01
     bne ?curoff
 
     jsr cursor_draw
@@ -41,11 +48,13 @@ vbi:
 ?curoff
     jsr cursor_undraw
 
-
 ?nah
     pla
     tay
     pla
+    tax
+    pla
+    plp
     jmp XITVBV
 
 ; Install dl & vbi
@@ -88,7 +97,7 @@ dl_vbi_install:
     lda #00
     sta COLCRS
 
-    lda #00
+    lda #01
     sta crson
     sta undercrs
 
@@ -147,6 +156,8 @@ dl_setzero:
 .local
 dl_scroll_one:
     jsr cursor_undraw
+    dec crson ; make sure cursor won't go off (will take multiple vblank cycles)
+    
     lda LINADR
     cmp #<scrollablebuf_lastline
     bne ?nowrap
@@ -158,6 +169,27 @@ dl_scroll_one:
     jmp ?stcaddr
 ?nowrap
     adc168 LINADR, numcolumns
+?stcaddr
+    mov16 LINADR, CRSADR
+    rts
+
+; Scrolls the display back by one
+.local
+dl_scroll_back_one:
+    jsr cursor_undraw
+    dec crson
+    
+    lda LINADR
+    cmp #<scrollablebuf_start
+    bne ?nowrap
+    lda LINADR+1
+    cmp #>scrollablebuf_start
+    bne ?nowrap
+    ; Well then, we need to wrap to the beginning of the buffer!
+    staddr scrollablebuf_lastline, LINADR
+    jmp ?stcaddr
+?nowrap
+    sbc168 LINADR, numcolumns
 ?stcaddr
     mov16 LINADR, CRSADR
     rts
@@ -176,12 +208,10 @@ dl_newline:
     rts
 
 ; Puts an internal charcode to the buf
+; Does not undraw cursor first.
+; Uses A,y
 .local
 putint:
-    tax
-    jsr cursor_undraw
-    txa
-
     ldy COLCRS
     sta (LINADR), Y
     iny
@@ -198,25 +228,36 @@ putint:
     rts
 
 ; Puts char from A to screen with wrap
+; Does not undraw cursor first.
 ; Uses A,Y
 .local
 PUTCH:
     ; Convert ATASCII to internal char code
+    cmp #$9B
+    beq ?10
+
+    cmp #96
+    bcs ?09
     cmp #32
-    blt @01
+    blt ?09
     sbc #32
-    jmp @02
-@01: ; Less than ATASCII 32
+    jmp ?09
+?01: ; Less than ATASCII 32
     adc #64
-@02:
+    jmp ?09
+
+?09:
     jsr PUTINT
     rts
+?10: ; Newline
+    jsr dl_newline
+    jmp dl_setzero
 
 ; Backspace... that's all.
+; Does not undraw cursor first.
 ; uses A,Y
 .local
 backspace:
-    jsr cursor_undraw
     ldy colcrs
     beq ?nuthin  ; Already at the start of a line = no backspace.
 
@@ -232,9 +273,12 @@ backspace:
 ; Uses A, Y
 .local
 cursor_draw:
+    sec
     lda crson  ; Cannot draw if already drawn
-    cmp #00
-    bne ?nodraw
+    cmp #01
+    bcc ?02
+    bne ?01
+
 
     dec crson
     ldy colcrs
@@ -242,7 +286,10 @@ cursor_draw:
     sta undercrs
     lda #cursor_int
     sta (linadr), y
-?nodraw
+?01
+    rts
+?02
+    dec crson
     rts
 
 ; Undraw cursor
@@ -251,7 +298,7 @@ cursor_draw:
 cursor_undraw:
     lda crson
     cmp #00
-    beq ?noundraw
+    bne ?noundraw
 
     inc crson
     ldy colcrs
@@ -259,3 +306,37 @@ cursor_undraw:
     sta (linadr), y
 ?noundraw
     rts
+
+; Enables cursor
+.local
+encurs:
+    lda crson
+    clc
+    cmp #01
+    bcc ?noencurs
+    lda #01
+    sta crson
+?noencurs
+    rts
+
+; Disables cursor until encurs
+discurs:
+    lda #$ff
+    sta crson
+    rts
+
+.macro setcolor ; reg #, color value
+    lda #%2
+    sta COLOR0 + %1
+.endm
+
+.macro tempsetcolor  ; setcolor but pushes to stack
+    lda COLOR0 + %1
+    pha
+    setcolor %1,%2
+.endm
+
+.macro returncolor  ; Return from tempsetcolor
+    pla
+    sta COLOR0 + %1
+.endm

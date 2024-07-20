@@ -7,7 +7,7 @@
 ; We can use these because we don't care about that.
 ;ROWCRS  = $54  ; Two-bytes for scrollable buffer (LSB,MSB)
 UNDERCRS= $54  ; For storing the value under the cursor
-CRSON   = $55  ; 1 if cursor displayed, 0 if not
+CRSON   = $55  ; 1 if cursor displayed, 0 if not, 
 COLCRS  = $56
 
 ; Address of the current cursor location (LSB,MSB)

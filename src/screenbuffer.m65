@@ -9,22 +9,33 @@ numcolumns  = 40
 colshift    = 5
 colremainder= 8
 
-; Number of rows in the scrollable buffer
-numrows     = 50
 screen_rows = 22
+
+; Number of rows in the scrollable buffer -- should be bigger than screen_rows
+; But this takes up a LOT of RAM space... so too much will crash the machine
+;numrows     = 30
+numrows     = 100
 
 screen_staticbuf:
     .sbyte " - Not Connected -             00:00:00 "
     ;    .ds numcolumns
 
 scrollablebuf_start:    
-.rept numrows-5
+.rept numrows-7
     .dc numcolumns $00
 ;    .sbyte "_ANTIC MODE 2,_YES_SCROLLED,____A__LINE_"
 .endr
     .sbyte "Atari 8-bit ham terminal,               "
     .sbyte "(C) 2024 Joseph R. Freeston.            "
-    .sbyte "----------------------------            "
+    .dc numcolumns $00
+
+    .sbyte "Type "
+    .sbyte +$80, "CTRL-A"
+    .sbyte ", "
+    .sbyte +$80, "H"
+    .sbyte " for help.                "
+    
+    .sbyte "----------------------------------------"
     .dc numcolumns $00
 scrollablebuf_lastline:
     .dc numcolumns $00

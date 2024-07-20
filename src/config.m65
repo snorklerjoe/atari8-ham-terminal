@@ -1,0 +1,129 @@
+;
+; Config variables & default values
+; This will be able to be saved and restored to/from a file
+; For backwards-compatibility, only add fields to the end.
+;
+
+
+; Serial communication stuff
+
+; CIO-valid filename
+; Up to 8 bytes
+; EOL-terminated
+SERIAL_DEVICE
+    .byte "R:", $9B
+    .byte $00, $00, $00, $00, $00
+SERIAL_COMM_SPEC
+    .byte $00
+SERIAL_COMM_SPEC2
+    .byte $00
+
+; Logging
+LOG_FILE  ; Up to 16 bytes
+    .byte "D:LOG.TXT", $9B
+LOG_TRANSLATION  ; same as atari 850 translation modes
+    .byte $00
+
+; User interface elements
+UI_CLOCK  ; $00 for off/disable, anything else is on.
+    .byte $ff
+UI_KEY_CLICK ; off, on, click on serial tx 
+    .byte $01
+
+;
+; Enums...
+; These are the strings that get used to represent each config value
+;
+CONFIG_ENUMS_START
+
+; Baud rate, the lowest four bits (0-3) of SERIAL_COMM_SPEC
+; Multiply that value by 8 to get the index here (<<3)
+CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD_MASK  = ~00001111
+CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD_SHIFT = 3
+CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD
+; 0
+    .byte "300    ",$9B
+; 1
+    .byte "45.5   ",$9B
+; 2
+    .byte "50     ",$9B
+; 3
+    .byte "56.875 ",$9B
+; 4
+    .byte "75     ",$9B
+; 5
+    .byte "110    ",$9B
+; 6
+    .byte "134.5  ",$9B
+; 7
+    .byte "150    ",$9B
+; 8
+    .byte "300    ",$9B
+; 9
+    .byte "600    ",$9B
+; 10
+    .byte "1200   ",$9B
+; 11
+    .byte "1800   ",$9B
+; 12
+    .byte "2400   ",$9B
+; 13
+    .byte "4800   ",$9B
+; 14
+    .byte "9600   ",$9B
+; 15
+    .byte "9600   ",$9B
+
+; Word size, bits 4-5 of SERIAL_COMM_SPEC
+; Right shift by 4 and multiply by 4 bytes to get index (>2)
+CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE_MASK  = ~00110000
+CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE_SHIFT = -2
+CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE
+; 0
+    .byte "8",$9B,$00,$00
+; 16
+    .byte "7",$9B,$00,$00
+; 32
+    .byte "6",$9B,$00,$00
+; 48
+    .byte "5",$9B,$00,$00
+
+; Stop bits, bit 7 of SERIAL_COMM_SPEC
+; Right shift by 7 and multiply by 4 bytes to get index (>5)
+CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS_MASK  = ~10000000
+CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS_SHIFT = -5
+CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS
+; 0
+    .byte "1",$9B,$00,$00
+; 128
+    .byte "2",$9B,$00,$00
+
+CONFIG_ENUMS_SERIAL_COMM_SPEC2_STOPBITS_MASK  = ~00000111
+CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR_SHIFT = 4
+CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR
+; 0
+    .byte "None", $9B
+    .ds 11
+; 1
+    .byte "CRX", $9B
+    .ds 12
+; 2
+    .byte "CTS", $9B
+    .ds 12
+; 3
+    .byte "CTS, CRX", $9B
+    .ds 7
+; 4
+    .byte "DSR", $9B
+    .ds 12
+; 5
+    .byte "DSR, CRX", $9B
+    .ds 7
+; 6
+    .byte "DSR, CTS", $9B
+    .ds 7
+; 7
+    .byte "DSR, CTS, CRX", $9B
+    .ds 2
+
+
