@@ -2,13 +2,14 @@
 ; Console i/o stuff.
 ;
 
-; Prints a 0-terminated string
+; Prints a 0-terminated string starting at offset X
 ; Give str addr
 ; Will wrap. Must be len<256
-.macro puts ; str_addr
+.macro puts_offset ; str_addr
 .local
+    phx
     jsr cursor_undraw
-    ldx #00
+    plx
 @loop_conio_puts
     txa
     pha
@@ -24,6 +25,14 @@
     pla
 .endm
 
+; Prints a 0-terminated string
+; Give str addr
+; Will wrap. Must be len<256
+.macro puts ; str_addr
+    ldx #00
+    puts_offset %1
+.endm
+
 ; Prints %2 if A == %1
 .local
 .macro printifeq
@@ -37,6 +46,7 @@ stringindex:
     .byte $00
 
 ; Gets a string from keyboard.
+; TODO: make subroutine instead of macro due to large size.
 ; stops on EOL or max chars
 ; Adds EOL AND #00 (2 bytes) beyond max size
 .macro gets ; buf_adr,maxchars

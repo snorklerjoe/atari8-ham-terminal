@@ -105,16 +105,16 @@
 
 ; Macro to shift left or right (if negative) n times
 .macro aslconst
-    .if %1 >= 0
         .rept %1
             asl A
         .endr
-    .else
-        .rept -%1
+.endm
+
+.macro asrconst
+        .rept %1
             and #~11111110 ; turn rotate into shift
             ror A
         .endr
-    .endif
 .endm
 
 ; BEQ but a jump, like for long range

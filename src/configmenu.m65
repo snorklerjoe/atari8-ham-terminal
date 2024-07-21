@@ -6,6 +6,9 @@ caps=32
 
 .local
 
+conftemp;
+    .byte $00
+
 ; Menu items
 config_menu_clock:
     jmp config_unimplemented
@@ -93,22 +96,282 @@ config_menu_serdev:
     jmp config_menu_success
 
 config_menu_serbaud:
-    jmp config_unimplemented
+    ; Prompt
+    puts string_baud
+    lda SERIAL_COMM_SPEC
+
+    clc
+    adc #CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD_INC
+    and #CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD_MASK
+
+
+    sta conftemp
+    lda SERIAL_COMM_SPEC
+    and #CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD_MASKINV
+    ora conftemp
+    sta SERIAL_COMM_SPEC
+
+    lda SERIAL_COMM_SPEC
+    and #CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD_MASK
+    aslconst CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD_SHIFT
+
+    tax
+    puts_offset CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD
+
+    lda #$9B
+    jsr putch
+
+    jmp config_menu_success
 
 config_menu_serstopbits:
-    jmp config_unimplemented
+    ; Prompt
+    puts string_stopbits
+
+    lda SERIAL_COMM_SPEC
+    eor #CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS_MASK
+    sta SERIAL_COMM_SPEC
+    and #CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS_MASK
+
+    printifeq 0,CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS
+    printifeq 128,CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS+4
+
+    lda #$9B
+    jsr putch
+
+    jmp config_menu_success
 
 config_menu_serflowctrl:
-    jmp config_unimplemented
+    ; Prompt
+    puts string_flowc
+    lda SERIAL_COMM_SPEC2
 
+    clc
+    adc #CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR_INC
+    and #CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR_MASK
+
+
+    sta conftemp
+    lda SERIAL_COMM_SPEC2
+    and #CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR_MASKINV
+    ora conftemp
+    sta SERIAL_COMM_SPEC2
+
+    lda SERIAL_COMM_SPEC2
+    and #CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR_MASK
+    aslconst CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR_SHIFT
+
+    tax
+    puts_offset CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR
+
+    lda #$9B
+    jsr putch
+
+    jmp config_menu_success
+
+.local
 config_menu_sertranslation:
-    jmp config_unimplemented
+    puts string_ser_translation
+
+    lda SERIAL_TRANSLATION
+    and #~00110000
+
+    ; Toggle
+    cmp #00
+    bne ?00
+    lda #16
+    jmp ?03
+?00
+    cmp #16
+    bne ?01
+    lda #32
+    jmp ?03
+?01
+    cmp #32
+    bne ?03
+    lda #00
+
+?03
+    sta conftemp
+    lda SERIAL_TRANSLATION
+    and #~11001111
+    ora conftemp
+    sta SERIAL_TRANSLATION
+    lda conftemp
+
+    lda conftemp
+
+    ; Print new value
+    pha
+    printifeq 00,string_light
+    pla
+    pha
+    printifeq 16,string_heavy
+    pla
+    pha
+    printifeq 32,string_off
+    pla
+
+    lda #$9B
+    jsr putch
+
+    jmp config_menu_success
+
+config_menu_lfappend:
+    puts string_lfappend
+
+    lda SERIAL_TRANSLATION
+    eor #64
+    sta SERIAL_TRANSLATION
+
+    and #64
+
+    printifeq 0,string_off
+    printifeq 64,string_on
+
+    lda #$9B
+    jsr putch
+
+    jsr config_update_keyclick
+
+    jmp config_menu_success
+    
 
 config_menu_serword:
-    jmp config_unimplemented
+    puts string_wsize
+    lda SERIAL_COMM_SPEC
 
-config_menu_serparity:
-    jmp config_unimplemented
+    clc
+    adc #CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE_INC
+    and #CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE_MASK
+
+
+    sta conftemp
+    lda SERIAL_COMM_SPEC
+    and #CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE_MASKINV
+    ora conftemp
+    sta SERIAL_COMM_SPEC
+
+    lda SERIAL_COMM_SPEC
+    and #CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE_MASK
+    asrconst CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE_SHIFT
+
+    tax
+    puts_offset CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE
+
+    lda #$9B
+    jsr putch
+
+    jmp config_menu_success
+
+.local
+config_menu_serinparity:
+    puts string_input
+    puts string_parity
+
+    lda SERIAL_TRANSLATION
+    and #~00001100
+
+    ; Toggle
+    cmp #00
+    bne ?00
+    lda #04
+    jmp ?03
+?00
+    cmp #04
+    bne ?01
+    lda #08
+    jmp ?03
+?01
+    cmp #08
+    bne ?02
+    lda #12
+    jmp ?03
+?02
+    cmp #12
+    bne ?03
+    lda #00
+
+?03
+    sta conftemp
+    lda SERIAL_TRANSLATION
+    and #~11110011
+    ora conftemp
+    sta SERIAL_TRANSLATION
+    lda conftemp
+
+    ; Print new value
+    pha
+    printifeq 00,string_none
+    pla
+    pha
+    printifeq 04,string_odd
+    pla
+    pha
+    printifeq 08,string_even
+    pla
+    pha
+    printifeq 12,string_clear
+    pla
+
+    lda #$9B
+    jsr putch
+
+    jmp config_menu_success
+
+.local
+config_menu_seroutparity:
+    puts string_output
+    puts string_parity
+
+    lda SERIAL_TRANSLATION
+    and #~00000011
+
+    ; Toggle
+    cmp #00
+    bne ?00
+    lda #01
+    jmp ?03
+?00
+    cmp #01
+    bne ?01
+    lda #02
+    jmp ?03
+?01
+    cmp #02
+    bne ?02
+    lda #03
+    jmp ?03
+?02
+    cmp #03
+    bne ?03
+    lda #00
+
+?03
+    sta conftemp
+    lda SERIAL_TRANSLATION
+    and #~11111100
+    ora conftemp
+    sta SERIAL_TRANSLATION
+    lda conftemp
+
+    ; Print new value
+    pha
+    printifeq 00,string_none
+    pla
+    pha
+    printifeq 01,string_odd
+    pla
+    pha
+    printifeq 02,string_even
+    pla
+    pha
+    printifeq 03,string_clear
+    pla
+
+    lda #$9B
+    jsr putch
+
+    jmp config_menu_success
 
 config_menu_serecho:
     puts string_echo
@@ -153,6 +416,9 @@ config_menu_conditionals:
     cmp #76 ; L
     jmpeq config_menu_logfile
 
+    cmp #78 ; N
+    jmpeq config_menu_lfappend
+
     cmp #84 ; T
     jmpeq config_menu_logtranslation
 
@@ -174,8 +440,10 @@ config_menu_conditionals:
     cmp #87 ; W
     jmpeq config_menu_serword
 
-    cmp #80 ; P
-    jmpeq config_menu_serparity
+    cmp #73 ; I
+    jmpeq config_menu_serinparity
+    cmp #79 ; O
+    jmpeq config_menu_seroutparity
 
     cmp #69 ; E
     jmpeq config_menu_serecho
@@ -273,7 +541,9 @@ CONFIG_MENU_TEXT2
     .byte " F - Flow Control", $9B
     .byte " A - ASCII/ATASCII translation", $9B
     .byte " W - Word size (bits)", $9B
-    .byte " P - Parity", $9B
+    .byte " I - Input Parity", $9B
+    .byte " O - Output Parity", $9B
+    .byte " N - AppeNd LF after EOL", $9B
     .byte " E - ECHO", $9B
     .byte $9B,$00
 CONFIG_MENU_TEXT3

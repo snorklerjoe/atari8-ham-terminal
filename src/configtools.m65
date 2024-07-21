@@ -11,3 +11,6 @@ config_update_keyclick
     jsr click
     rts
 
+.local
+config_reconfigure_serial
+    rts

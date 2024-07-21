@@ -21,6 +21,8 @@ SERIAL_COMM_SPEC
     .byte $00
 SERIAL_COMM_SPEC2
     .byte $00
+SERIAL_TRANSLATION
+    .byte $00
 
 ; Logging
 LOG_FILE  ; Up to 16 bytes
@@ -43,51 +45,55 @@ SERIAL_ECHO  ; off/on
 ; Enums...
 ; These are the strings that get used to represent each config value
 ;
-.align $100 ; Strings cannot cross page boundaries
+.align $100 ; Strings cannot cross boundaries
 CONFIG_ENUMS_START
 
 ; Baud rate, the lowest four bits (0-3) of SERIAL_COMM_SPEC
 ; Multiply that value by 8 to get the index here (<<3)
 CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD_MASK  = ~00001111
+CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD_MASKINV  = ~11110000
 CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD_SHIFT = 3
+CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD_INC = 1
 CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD
 ; 0
-    .byte "300    ",$9B
+    .byte "300    ",$00
 ; 1
-    .byte "45.5   ",$9B
+    .byte "45.5   ",$00
 ; 2
-    .byte "50     ",$9B
+    .byte "50     ",$00
 ; 3
-    .byte "56.875 ",$9B
+    .byte "56.875 ",$00
 ; 4
-    .byte "75     ",$9B
+    .byte "75     ",$00
 ; 5
-    .byte "110    ",$9B
+    .byte "110    ",$00
 ; 6
-    .byte "134.5  ",$9B
+    .byte "134.5  ",$00
 ; 7
-    .byte "150    ",$9B
+    .byte "150    ",$00
 ; 8
-    .byte "300    ",$9B
+    .byte "300    ",$00
 ; 9
-    .byte "600    ",$9B
+    .byte "600    ",$00
 ; 10
-    .byte "1200   ",$9B
+    .byte "1200   ",$00
 ; 11
-    .byte "1800   ",$9B
+    .byte "1800   ",$00
 ; 12
-    .byte "2400   ",$9B
+    .byte "2400   ",$00
 ; 13
-    .byte "4800   ",$9B
+    .byte "4800   ",$00
 ; 14
-    .byte "9600   ",$9B
+    .byte "9600   ",$00
 ; 15
-    .byte "9600   ",$9B
+    .byte "9600   ",$00
 
 ; Word size, bits 4-5 of SERIAL_COMM_SPEC
 ; Right shift by 4 and multiply by 4 bytes to get index (>2)
 CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE_MASK  = ~00110000
-CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE_SHIFT = -2
+CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE_MASKINV= ~11001111
+CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE_SHIFT = 2
+CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE_INC = 16
 CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE
 ; 0
     .byte "8",$9B,$00,$00
@@ -101,15 +107,19 @@ CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE
 ; Stop bits, bit 7 of SERIAL_COMM_SPEC
 ; Right shift by 7 and multiply by 4 bytes to get index (>5)
 CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS_MASK  = ~10000000
-CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS_SHIFT = -5
+CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS_MASKINV  = ~01111111
+CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS_TOGGLE  = ~10000000
+CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS_SHIFT = 5
 CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS
 ; 0
     .byte "1",$9B,$00,$00
 ; 128
     .byte "2",$9B,$00,$00
 
-CONFIG_ENUMS_SERIAL_COMM_SPEC2_STOPBITS_MASK  = ~00000111
+CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR_MASK  = ~00000111
+CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR_MASKINV  = ~11111000
 CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR_SHIFT = 4
+CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR_INC = 1
 CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR
 ; 0
     .byte "None", $9B
@@ -143,25 +153,48 @@ CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR
 .align $100 ; Strings cannot cross page boundaries
 
 string_keyclick
-.byte "Keyclick on tx: ",$00
+    .byte "Keyclick on tx: ",$00
 string_echo
-.byte "Echo: ",$00
+    .byte "Echo: ",$00
 string_on
-.byte "ON",$00
+    .byte "ON",$00
 string_off
-.byte "OFF",$00
+    .byte "OFF",$00
+string_none
+    .byte "NONE",$00
 string_fullq
-.byte "FULL",$00
+    .byte "FULL",$00
 string_light
-.byte "LIGHT",$00
+    .byte "LIGHT",$00
 string_heavy
-.byte "HEAVY",$00
-
-
+    .byte "HEAVY",$00
 string_current_value
-.byte "Current value: ",$00
+    .byte "Current value: ",$00
 string_new
-.byte "New: ",$00
-
+    .byte "New: ",$00
 string_log_translation
-.byte "Log translation: ",$00
+    .byte "Log translation: ",$00
+string_ser_translation
+    .byte "Serial translation: ",$00
+string_baud
+    .byte "Baud: ",$00
+string_stopbits
+    .byte "# Stop bits: ",$00
+string_flowc
+    .byte "Flow control monitor: ",$00
+string_wsize
+    .byte "Word size: ",$00
+string_lfappend
+    .byte "Append LF: ",$00
+string_parity
+    .byte "parity: ",$00
+string_input
+    .byte "Input ",$00
+string_output
+    .byte "Output ",$00
+string_even
+    .byte "EVEN",$00
+string_odd
+    .byte "ODD",$00
+string_clear
+    .byte "CLEAR",$00
