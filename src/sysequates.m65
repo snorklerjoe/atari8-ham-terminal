@@ -57,6 +57,7 @@ VDSLST  = $200
 ; Other OS Equates
 CH      = $2FC
 NMIEN   = $D40E
+RUNAD   = $2E0
 INITAD  = $2E2
 
 WARMSV  = $E474
@@ -65,3 +66,8 @@ SETVBV  = $E45C
 XITVBV  = $E462
 
 RTCLOK  = $12 ; ,$13,$14
+
+SHFLOK  = $2BE
+KEYCLICK= 731
+
+consol  = $D10F

@@ -4,6 +4,10 @@
 ; For backwards-compatibility, only add fields to the end.
 ;
 
+;
+; This stuff also needs to stay in-page, generally speaking.
+;
+
 
 ; Serial communication stuff
 
@@ -21,19 +25,25 @@ SERIAL_COMM_SPEC2
 ; Logging
 LOG_FILE  ; Up to 16 bytes
     .byte "D:LOG.TXT", $9B
-LOG_TRANSLATION  ; same as atari 850 translation modes
+    .byte $00, $00, $00, $00, $00, $00
+LOG_TRANSLATION  ; same as atari 850 translation modes (0, 16, 32 = light, heavy, none)
     .byte $00
 
 ; User interface elements
 UI_CLOCK  ; $00 for off/disable, anything else is on.
     .byte $ff
-UI_KEY_CLICK ; off, on, click on serial tx 
+UI_KEY_CLICK ; off, click on serial tx
+    .byte $00
+
+; Other
+SERIAL_ECHO  ; off/on
     .byte $01
 
 ;
 ; Enums...
 ; These are the strings that get used to represent each config value
 ;
+.align $100 ; Strings cannot cross page boundaries
 CONFIG_ENUMS_START
 
 ; Baud rate, the lowest four bits (0-3) of SERIAL_COMM_SPEC
@@ -127,3 +137,31 @@ CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR
     .ds 2
 
 
+;
+; Strings
+;
+.align $100 ; Strings cannot cross page boundaries
+
+string_keyclick
+.byte "Keyclick on tx: ",$00
+string_echo
+.byte "Echo: ",$00
+string_on
+.byte "ON",$00
+string_off
+.byte "OFF",$00
+string_fullq
+.byte "FULL",$00
+string_light
+.byte "LIGHT",$00
+string_heavy
+.byte "HEAVY",$00
+
+
+string_current_value
+.byte "Current value: ",$00
+string_new
+.byte "New: ",$00
+
+string_log_translation
+.byte "Log translation: ",$00

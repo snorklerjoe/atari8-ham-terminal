@@ -4,6 +4,143 @@
 
 caps=32
 
+.local
+
+; Menu items
+config_menu_clock:
+    jmp config_unimplemented
+
+config_menu_keyclick:
+    puts string_keyclick
+
+    lda UI_KEY_CLICK
+    eor #~00000001
+    sta UI_KEY_CLICK
+
+    printifeq 0,string_off
+    printifeq 1,string_on
+
+    lda #$9B
+    jsr putch
+
+    jsr config_update_keyclick
+
+    jmp config_menu_success
+
+config_menu_logfile:
+    ; Prompt
+    puts string_current_value
+    puts LOG_FILE
+    lda #$9B
+    jsr putch
+    puts string_new
+
+    ; Get input, up to 14 chars + EOL + 0x00
+    gets LOG_FILE, 14
+
+    jmp config_menu_success
+    
+.local
+config_menu_logtranslation:
+    puts string_log_translation
+
+    lda LOG_TRANSLATION
+
+    ; Toggle
+    cmp #00
+    bne @00
+    lda #16
+    jmp @03
+@00
+    cmp #16
+    bne @01
+    lda #32
+    jmp @03
+@01
+    cmp #32
+    bne @03
+    lda #00
+
+@03
+    sta LOG_TRANSLATION
+
+    ; Print new value
+    pha
+    printifeq 00,string_light
+    pla
+    pha
+    printifeq 16,string_heavy
+    pla
+    pha
+    printifeq 32,string_off
+    pla
+
+    lda #$9B
+    jsr putch
+
+    jmp config_menu_success
+
+config_menu_serdev:
+    ; Prompt
+    puts string_current_value
+    puts SERIAL_DEVICE
+    lda #$9B
+    jsr putch
+    puts string_new
+
+    gets SERIAL_DEVICE, 6
+
+    jmp config_menu_success
+
+config_menu_serbaud:
+    jmp config_unimplemented
+
+config_menu_serstopbits:
+    jmp config_unimplemented
+
+config_menu_serflowctrl:
+    jmp config_unimplemented
+
+config_menu_sertranslation:
+    jmp config_unimplemented
+
+config_menu_serword:
+    jmp config_unimplemented
+
+config_menu_serparity:
+    jmp config_unimplemented
+
+config_menu_serecho:
+    puts string_echo
+
+    lda SERIAL_ECHO
+    eor #~00000001
+    sta SERIAL_ECHO
+
+    printifeq 0,string_off
+    printifeq 1,string_on
+
+    lda #$9B
+    jsr putch
+
+    jmp config_menu_success
+
+config_menu_save:
+    jmp config_unimplemented
+
+config_menu_help:
+    jsr print_config_menu
+    jmp config_menu_success
+
+config_unimplemented:
+    puts config_unimplemented_msg
+    jmp config_menu_success
+
+
+config_unimplemented_msg
+    .byte "Config option unimplemented!",$9B,$00
+
+
 ; menu conditionals-- launches menu subroutine.
 ; Each manu item subroutine should end with #00 in A
 config_menu_conditionals:
@@ -40,6 +177,9 @@ config_menu_conditionals:
     cmp #80 ; P
     jmpeq config_menu_serparity
 
+    cmp #69 ; E
+    jmpeq config_menu_serecho
+
     cmp #68 ; D
     jmpeq config_menu_save
 
@@ -48,55 +188,10 @@ config_menu_conditionals:
 
     rts
 
-; Menu items
-config_menu_clock:
-    jmp config_unimplemented
-
-config_menu_keyclick:
-    jmp config_unimplemented
-
-config_menu_logfile:
-    jmp config_unimplemented
-
-config_menu_logtranslation:
-    jmp config_unimplemented
-
-config_menu_serdev:
-    jmp config_unimplemented
-
-config_menu_serbaud:
-    jmp config_unimplemented
-
-config_menu_serstopbits:
-    jmp config_unimplemented
-
-config_menu_serflowctrl:
-    jmp config_unimplemented
-
-config_menu_sertranslation:
-    jmp config_unimplemented
-
-config_menu_serword:
-    jmp config_unimplemented
-
-config_menu_serparity:
-    jmp config_unimplemented
-
-config_menu_save:
-    jmp config_unimplemented
-
-config_menu_help:
-    jsr print_config_menu
+; go here after sucesfully processing a menu item
+config_menu_success:
     lda #00
     rts
-
-config_unimplemented:
-    puts config_unimplemented_msg
-    lda #00
-    rts
-
-config_unimplemented_msg
-    .byte "Config option unimplemented!",$9B,$00
 
 ; GETCH's and processes menu item
 .local
@@ -165,7 +260,7 @@ CONFIG_MENU_TEXT
     .byte $9B,
     .byte "User Interface Preferences:", $9B
     .byte " C - Clock on/off", $9B
-    .byte " K - Key click on/off", $9B
+    .byte " K - Key click on tx on/off", $9B
     .byte $9B
     .byte "Logging Preferences:", $9B
     .byte " L - Log file (or device)", $9B
@@ -179,6 +274,7 @@ CONFIG_MENU_TEXT2
     .byte " A - ASCII/ATASCII translation", $9B
     .byte " W - Word size (bits)", $9B
     .byte " P - Parity", $9B
+    .byte " E - ECHO", $9B
     .byte $9B,$00
 CONFIG_MENU_TEXT3
     .byte "Save / Restore from D:CONFIG.BIN", $9B

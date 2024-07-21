@@ -1,0 +1,13 @@
+;
+; Helpers and routines for configuration
+;
+
+config_update_all
+    jsr config_update_keyclick
+    rts
+
+.local
+config_update_keyclick
+    jsr click
+    rts
+

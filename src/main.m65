@@ -1,5 +1,12 @@
 ; Main program.
 
+
+; Includes:
+;  equates & macros
+.include "sysequates.m65"
+.include "zpregs.m65"
+.include "utils.m65"
+
 ; Display memory
 .bank
 * = $A000 "Screen Buffer"
@@ -13,14 +20,9 @@
 ; Main code
 .bank
 *=$8000
-
-; Includes:
-;  equates & macros
-.include "sysequates.m65"
-.include "zpregs.m65"
-.include "utils.m65"
 ;  configuration
 .include "config.m65"
+.include "configtools.m65"
 ;  low-level i/o
 .include "cio.m65"
 .include "keyb_util.m65"
@@ -69,8 +71,8 @@ loop:
     ; write it
     jsr PUTCH
     pla
-    cmp #27
-    beq closedown
+;    cmp #27
+;    beq closedown
 ;    cmp #$9B
 ;    bne loop
 ;    jsr dl_newline
@@ -116,5 +118,5 @@ closedown:
 
 ; Init vector
 .bank
-*=INITAD
+*=RUNAD
 .word init

@@ -124,3 +124,29 @@
     jmp %1
 @nojmp
 .endm
+
+.macro phx
+    txa
+    pha
+.endm
+.macro phy
+    tya
+    pha
+.endm
+.macro plx
+    pla
+    tax
+.endm
+.macro ply
+    pla
+    tay
+.endm
+
+; LDA #%2 if A == #%1
+.local
+.macro ldaifeq
+    cmp #%1
+    bne @donelie
+    lda #%2
+@donelie
+.endm

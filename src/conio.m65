@@ -23,3 +23,64 @@
 @doneloop_conio_puts
     pla
 .endm
+
+; Prints %2 if A == %1
+.local
+.macro printifeq
+    cmp #%1
+    bne @done
+    puts %2
+@done:
+.endm
+
+stringindex:
+    .byte $00
+
+; Gets a string from keyboard.
+; stops on EOL or max chars
+; Adds EOL AND #00 (2 bytes) beyond max size
+.macro gets ; buf_adr,maxchars
+    ldx #00
+    stx stringindex
+@getch_loop
+    jsr GETCH
+
+    cmp #27
+    beq @esc
+
+    cmp #$9B
+    beq @eol
+
+    cmp #126 ; backspace
+    beq @process_backspace
+
+    pha  ; Put character, too...
+    jsr putch
+    pla
+
+    ldx stringindex
+    sta %1, x
+
+    inc stringindex
+    ldx stringindex
+    cpx #%2
+    bne @getch_loop
+    jmp @eol
+
+@process_backspace
+    dec stringindex
+    jsr cursor_undraw
+    jsr backspace
+    jmp @getch_loop
+
+@eol
+    ldx stringindex
+    lda #$9B
+    sta %1,x
+    inx
+    lda #00
+    sta %1,x
+@esc    
+    lda #$9B
+    jsr putch
+.endm

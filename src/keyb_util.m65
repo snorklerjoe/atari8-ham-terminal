@@ -17,6 +17,11 @@ KEYINIT:
     staddr KDEV,BUFPTR
     lda #OPNIN
     jsr CIO_OPEN
+
+    ; Turn off Capslock
+    lda #00
+    sta SHFLOK
+
     rts
 
 ; Closes down the screen
@@ -63,4 +68,17 @@ CHRAVAIL:
     clc
     ldx CH
     inx
+    rts
+
+; Produces a key click.
+; Similar to the OS routine, but rewritten here to be more portable
+; Just uses wsync... might mess things up bc it blocks until the click is done.
+CLICK:
+    ldx #$5f
+clickloop:
+    stx consol
+    stx wsync
+
+    dex
+    bpl clickloop
     rts
