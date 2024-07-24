@@ -5,8 +5,8 @@
 ; Prints a 0-terminated string starting at offset X
 ; Give str addr
 ; Will wrap. Must be len<256
-.macro puts_offset ; str_addr
 .local
+.macro puts_offset ; str_addr
     phx
     jsr cursor_undraw
     plx

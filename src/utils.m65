@@ -113,6 +113,7 @@
 .macro asrconst
         .rept %1
             and #~11111110 ; turn rotate into shift
+            clc
             ror A
         .endr
 .endm

@@ -198,7 +198,7 @@ config_menu_sertranslation:
     sta SERIAL_TRANSLATION
     lda conftemp
 
-    lda conftemp
+;    lda conftemp
 
     ; Print new value
     pha
@@ -388,6 +388,47 @@ config_menu_serecho:
 
     jmp config_menu_success
 
+
+.local
+config_menu_sershort:
+    puts string_force_short
+
+    lda SERIAL_SHORT
+
+    ; Toggle
+    cmp #00
+    bne ?00
+    lda #01
+    jmp ?03
+?00
+    cmp #01
+    bne ?01
+    lda #02
+    jmp ?03
+?01
+    cmp #02
+    bne ?03
+    lda #00
+
+?03
+    sta SERIAL_SHORT
+
+    ; Print new value
+    pha
+    printifeq 00,string_off
+    pla
+    pha
+    printifeq 01,string_on_eol
+    pla
+    pha
+    printifeq 02,string_each_char
+    pla
+
+    lda #$9B
+    jsr putch
+
+    jmp config_menu_success
+
 config_menu_save:
     jmp config_unimplemented
 
@@ -403,6 +444,129 @@ config_unimplemented:
 config_unimplemented_msg
     .byte "Config option unimplemented!",$9B,$00
 
+config_menu_print_config
+; Print Device
+    puts string_serial_device
+    puts SERIAL_DEVICE
+; Print Baud
+    puts string_baud
+    lda SERIAL_COMM_SPEC
+    and #CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD_MASK
+    aslconst CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD_SHIFT
+    tax
+    puts_offset CONFIG_ENUMS_SERIAL_COMM_SPEC_BAUD
+    lda #$9B
+    jsr putch
+; Print Stopbits
+    puts string_stopbits
+    lda SERIAL_COMM_SPEC
+    and #CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS_MASK
+    printifeq 0,CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS
+    printifeq 128,CONFIG_ENUMS_SERIAL_COMM_SPEC_STOPBITS+4
+    lda #$9B
+    jsr putch
+; Print flowcontrol
+    puts string_flowc
+    lda SERIAL_COMM_SPEC2
+    and #CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR_MASK
+    aslconst CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR_SHIFT
+    tax
+    puts_offset CONFIG_ENUMS_SERIAL_COMM_SPEC2_MONITOR
+    lda #$9B
+    jsr putch
+; Print Translation
+    puts string_ser_translation
+    lda SERIAL_TRANSLATION
+    and #~00110000
+    pha
+    printifeq 00,string_light
+    pla
+    pha
+    printifeq 16,string_heavy
+    pla
+    pha
+    printifeq 32,string_off
+    pla
+    lda #$9B
+    jsr putch
+; Print lf append
+    puts string_lfappend
+    lda SERIAL_TRANSLATION
+    and #64
+    printifeq 0,string_off
+    printifeq 64,string_on
+    lda #$9B
+    jsr putch
+; Print in parity
+    puts string_input
+    puts string_parity
+    lda SERIAL_TRANSLATION
+    and #~00001100
+    pha
+    printifeq 00,string_none
+    pla
+    pha
+    printifeq 04,string_odd
+    pla
+    pha
+    printifeq 08,string_even
+    pla
+    pha
+    printifeq 12,string_clear
+    pla
+    lda #$9B
+    jsr putch
+; Print out parity
+    puts string_output
+    puts string_parity
+    lda SERIAL_TRANSLATION
+    and #~00000011
+    pha
+    printifeq 00,string_none
+    pla
+    pha
+    printifeq 01,string_odd
+    pla
+    pha
+    printifeq 02,string_even
+    pla
+    pha
+    printifeq 03,string_clear
+    pla
+    lda #$9B
+    jsr putch
+; Print serword
+    puts string_wsize
+    lda SERIAL_COMM_SPEC
+    and #CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE_MASK
+    asrconst CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE_SHIFT
+    tax
+    puts_offset CONFIG_ENUMS_SERIAL_COMM_SPEC_WORDSIZE
+    lda #$9B
+    jsr putch
+; Print ser echo
+    puts string_echo
+    lda SERIAL_ECHO
+    printifeq 0,string_off
+    printifeq 1,string_on
+    lda #$9B
+    jsr putch
+; Print ser short
+    puts string_force_short
+    lda SERIAL_SHORT
+    pha
+    printifeq 00,string_off
+    pla
+    pha
+    printifeq 01,string_on_eol
+    pla
+    pha
+    printifeq 02,string_each_char
+    pla
+    lda #$9B
+    jsr putch
+
+    jmp config_menu_success
 
 ; menu conditionals-- launches menu subroutine.
 ; Each manu item subroutine should end with #00 in A
@@ -448,11 +612,17 @@ config_menu_conditionals:
     cmp #69 ; E
     jmpeq config_menu_serecho
 
+    cmp #90 ; Z
+    jmpeq config_menu_sershort
+
     cmp #68 ; D
     jmpeq config_menu_save
 
     cmp #72 ; H
     jmpeq config_menu_help
+
+    cmp #58 ; :
+    jmpeq config_menu_print_config
 
     rts
 
@@ -544,6 +714,7 @@ CONFIG_MENU_TEXT2
     .byte " I - Input Parity", $9B
     .byte " O - Output Parity", $9B
     .byte " N - AppeNd LF after EOL", $9B
+    .byte " Z - Force short", $9B
     .byte " E - ECHO", $9B
     .byte $9B,$00
 CONFIG_MENU_TEXT3
@@ -551,6 +722,7 @@ CONFIG_MENU_TEXT3
     .byte " D - SAVE config TO Disk", $9B
 ;    .byte " > - LOAD config FROM disk", $9B
     .byte $9B
+    .byte ": - Print current serial configuration", $9B
     .byte "H - Show this configuration menu", $9B
     .byte $9B,$00
 

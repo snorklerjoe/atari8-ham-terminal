@@ -40,6 +40,8 @@ UI_KEY_CLICK ; off, click on serial tx
 ; Other
 SERIAL_ECHO  ; off/on
     .byte $01
+SERIAL_SHORT  ; off/EOL/char
+    .byte $02
 
 ;
 ; Enums...
@@ -198,3 +200,11 @@ string_odd
     .byte "ODD",$00
 string_clear
     .byte "CLEAR",$00
+string_force_short
+    .byte "Force short: ",$00
+string_on_eol
+    .byte "on EOL", $00
+string_each_char
+    .byte "each char", $00
+string_serial_device
+    .byte "Serial device: ",$00
