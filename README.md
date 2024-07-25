@@ -64,3 +64,26 @@ and will download a dos image from online (not mine), assemble hamterm, and add 
 In the end, you will be left with a bootable atr image `hamterm.atr`.
 
 **It is much faster to use the atasm-altirra bridge VSCode extension for development-- the Altirra debugger is very helpful.**
+
+## Using my code in your stuff
+
+It took a while for me to figure some of these things out (that may be my being fairly new to 6502 assembly...), so I would be thrilled if it was somehow helpful to anyone else. Please include the [license / copyright notice](./LICENSE) if you do use any "substantial portion", as per the MIT License.
+
+But there are examples of VBI/DLI stuff, [Atari CIO calls](./src/cio.m65), and some ATASM/M65 [utility macros](./src/utils.m65):
+
+- 16-bit increment/decrement
+- 16-bit minus 8-bit subtraction
+- 16-bit plus 8-bit addition
+
+I would be thrilled if any of this was helpful to someone else!
+
+## References
+
+I learned a lot during this project (and as of this writing I've still a long way to go on it...), and that wouldn't have been possible in the same capacity and efficiency if not for these amazing sites:
+
+- [Mapping The Atari](https://www.atariarchives.org/mapping/)
+  - [ATASCII/INTERNAL CHAR CODE table](https://www.atariarchives.org/mapping/appendix10.php)
+- [Michael Steil's 6502 reference](https://www.pagetable.com/c64ref/6502/)
+- [Super handy and easy to follow DLI/VBI/Scrolling tutorials by Rob McMullen](https://playermissile.com/#tutorials)
+- [CC65 Atari lib src](https://github.com/cc65/cc65/tree/master/libsrc/atari)
+- [Atari OS Source Listing](https://atariwiki.org/wiki/Wiki.jsp?page=Atari%20800%20ROM%20OS%20Source%20Listing)
