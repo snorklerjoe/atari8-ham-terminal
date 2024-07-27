@@ -9,6 +9,24 @@ BUFPTRH = $CC
 BUFPTR = $CB
 
 
+
+; jmp to a callback for handling an error
+CIO_ERRJMP:
+    jmp warmsv
+CIO_ERR_CALLBACK = CIO_ERRJMP + 1
+
+; Checks for err after cio call and runs callback if necessary
+cio_checkerr
+    rts
+    tya
+    and #~10000000
+    beq @nocioerr
+
+    jmp CIO_ERRJMP
+
+@nocioerr
+    rts
+
 ; Opens IOCB#X ($10, $20, etc) with aux1 in A
 ; With device name buffer ptr in BUFPTR
 CIO_OPEN:
@@ -30,7 +48,7 @@ CIO_OPEN:
     ; CIO Call
     jsr CIOV
 
-    ; TODO: Error handling
+    jsr cio_checkerr
 
     rts
 
@@ -43,7 +61,7 @@ CIO_CLOSE:
     ; CIO Call
     jsr CIOV
 
-    ; TODO: Error handling
+    jsr cio_checkerr
 
     rts
 
@@ -67,7 +85,7 @@ CIO_GET:
     ; CIO Call
     jsr CIOV
 
-    ; TODO: Error handling
+    jsr cio_checkerr
 
     rts
 
@@ -89,7 +107,7 @@ CIO_WRITE:
     ; CIO Call
     jsr CIOV
 
-    ; TODO: Error handling
+    jsr cio_checkerr
 
     rts
 
@@ -112,20 +130,20 @@ CIO_PUT:
     ; CIO Call
     jsr CIOV
 
-    ; TODO: Error handling
+    jsr cio_checkerr
 
     rts
 
 ; Performs an arbitrary cio Call
 ; A is Command
-; X, Y are aux 1 and 2
+; x is iocb, y is aux1
 CIO_ARBITRARY:
     ; Command
     sta ICCOM, X
     ; Aux bytes
-    txa
-    sta ICAX1, X
     tya
+    sta ICAX1, X
+    lda #00
     sta ICAX2, X
 
     ; Buffer
@@ -141,6 +159,35 @@ CIO_ARBITRARY:
     ; CIO Call
     jsr CIOV
 
-    ; TODO: Error handling
+    jsr cio_checkerr
+
+    rts
+
+
+; Performs an arbitrary cio Call
+; stack has Command
+; x is iocb, a is aux, y is aux2
+CIO_ARBITRARY_2AUX:
+    sta ICAX1, X
+    ; Command
+    pla
+    sta ICCOM, X
+    ; Aux bytes
+    tya
+    sta ICAX2, X
+    ; Buffer
+    lda BUFPTRL
+    sta ICBAL, X
+    lda BUFPTRH
+    sta ICBAH, X
+
+    lda #$FF
+    sta ICBLL, X
+    sta ICBLH, X
+
+    ; CIO Call
+    jsr CIOV
+
+    jsr cio_checkerr
 
     rts

@@ -39,13 +39,16 @@ MSG:  .byte "Hello World!",$9B,$00
 
 ; Program entry:
 init:
-    jmp _CIO_TEST
+    jmp initterm
 
-_CIO_TEST:
+initterm:
     ; Init
     jsr dl_vbi_install
     jsr dl_setzero
     jsr keyinit
+
+    ; Install cio err handler
+    staddr cio_err,CIO_ERR_CALLBACK
 
     ; Print
 ;    staddr MSG,BUFPTR
@@ -108,6 +111,13 @@ main_config_menu:
 
     returncolor 4
     jmp loop
+
+; On CIO Error
+cio_err:
+    puts string_cio_err
+    rts
+string_cio_err
+.byte "CIO Error."
 
 closedown:
     ; Close
