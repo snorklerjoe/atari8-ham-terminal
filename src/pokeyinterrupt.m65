@@ -1,0 +1,31 @@
+;
+; Utils for POKEY-based timer interrupts
+;
+
+
+.macro set_cdtm2_time_literal
+    staddr %1, cdtmv2
+.endm
+
+.macro set_cdtm2_vector ; routine
+    set_cdtm2_time_literal $ffff
+    
+    ; staddr
+    lda #<%1
+    sta cdtma2
+    lda #>%1
+    sta cdtma2+1
+.endm
+
+; Run a routine periodically
+.local
+.macro set_cdtm2_periodic ; routine, period
+    set_cdtm2_vector @cdtm2v_wrapper
+    jmp @cdtm2v_setperiod
+@cdtm2v_wrapper
+    jsr %1
+    set_cdtm2_time_literal %2
+    rts
+@cdtm2v_setperiod
+    set_cdtm2_time_literal %2
+.endm
